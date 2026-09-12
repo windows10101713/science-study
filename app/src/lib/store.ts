@@ -31,11 +31,25 @@ export interface MistakeEntry {
   isResolved: boolean
 }
 
+// 사용자가 추가한 레슨 트랙(클래스). 홈 화면에 카드로 표시되고
+// 진도 트리(아래→위)의 노드는 lessonIds 순서를 따른다.
+export interface LessonClass {
+  id: string
+  subject: string
+  subjectLabel: string
+  level: string
+  levelLabel: string
+  title: string
+  lessonIds: string[]
+  createdAt: string
+}
+
 interface LearningStore {
   // 학생 진도
   progress: StudentProgress[]
   sessions: LearningSession[]
   mistakes: MistakeEntry[]
+  classes: LessonClass[]
 
   // 기본 설정
   userPreferences: {
@@ -58,6 +72,9 @@ interface LearningStore {
   setUserPreference: (key: string, value: any) => void
   getAverageScore: (conceptIds?: string[]) => number
   resetProgress: () => void
+  addClass: (c: LessonClass) => void
+  removeClass: (id: string) => void
+  getClassProgress: (classId: string) => number
 }
 
 export const useLearningStore = create<LearningStore>()(
@@ -66,6 +83,7 @@ export const useLearningStore = create<LearningStore>()(
       progress: [],
       sessions: [],
       mistakes: [],
+      classes: [],
       userPreferences: {
         grade: 8,
         level: 'curriculum',
@@ -196,6 +214,24 @@ export const useLearningStore = create<LearningStore>()(
           sessions: [],
           mistakes: [],
         })),
+
+      addClass: (c) =>
+        set((state) => ({
+          classes: [...state.classes, c],
+        })),
+
+      removeClass: (id) =>
+        set((state) => ({
+          classes: state.classes.filter((c) => c.id !== id),
+        })),
+
+      getClassProgress: (classId) => {
+        const state = get()
+        const cls = state.classes.find((c) => c.id === classId)
+        if (!cls || cls.lessonIds.length === 0) return 0
+        const completed = cls.lessonIds.filter((id) => state.progress.some((p) => p.conceptId === id)).length
+        return Math.round((completed / cls.lessonIds.length) * 100)
+      },
     }),
     {
       name: 'learning-store',

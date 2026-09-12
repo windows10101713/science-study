@@ -1,17 +1,22 @@
 import { useState, useMemo } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { allQuestions } from '../data/questions'
 import { allLessons } from '../data/lessons'
 import { getCustomConcept } from '../lib/concepts'
+import { useLearningStore } from '../lib/store'
 import '../styles/index.css'
 
 export default function QuizPage() {
   const { lessonId } = useParams()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const classId = searchParams.get('classId')
+  const { updateProgress } = useLearningStore()
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [submitted, setSubmitted] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
+  const [startTime] = useState(() => Date.now())
 
   // 레슨 정보 가져오기
   const lesson = useMemo(() => {
@@ -79,6 +84,8 @@ export default function QuizPage() {
                        (q.type === 'short_answer' && userAnswer?.includes(q.answer as string))
         return correct ? count + 1 : count
       }, 0)
+      const score = Math.round((correctCount / questions.length) * 100)
+      const timeSpent = Math.round((Date.now() - startTime) / 1000)
 
       // 저장
       sessionStorage.setItem(`quiz_${lessonId}`, JSON.stringify({
@@ -87,7 +94,8 @@ export default function QuizPage() {
         answers,
         date: new Date().toISOString(),
       }))
-      navigate(`/result/${lessonId}`)
+      updateProgress(lessonId!, score, timeSpent)
+      navigate(`/result/${lessonId}${classId ? `?classId=${classId}` : ''}`)
     } else {
       setCurrentQuestionIdx(currentQuestionIdx + 1)
       setSubmitted(false)

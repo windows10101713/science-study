@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { allLessons } from '../data/lessons'
+import { getCustomConcept } from '../lib/concepts'
 
 export default function ReviewPage() {
   const navigate = useNavigate()
@@ -22,26 +24,36 @@ export default function ReviewPage() {
     setReviews(allReviews)
   }, [])
 
-  const lessonInfo: Record<string, any> = {
-    'physics-middle-01': { title: '힘의 의미', subject: '중학교 물리' },
-    'physics-middle-02': { title: '뉴턴의 운동 법칙', subject: '중학교 물리' },
+  const getLessonInfo = (lessonId: string) => {
+    const lesson = allLessons.find((l) => l.id === lessonId) || getCustomConcept(lessonId)
+    if (!lesson) return { title: lessonId, subject: '미정' }
+    return { title: lesson.title, subject: lesson.unit }
   }
 
   return (
     <div className="app">
       <header className="header">
         <div className="container">
-          <h1>📝 오답 노트</h1>
-          <p>지난 학습을 복습하세요</p>
+          <h1>📝 로그</h1>
+          <p>지난 학습 기록과 통계를 확인하세요</p>
         </div>
       </header>
 
       <main className="container">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+          <button className="btn btn-secondary" onClick={() => navigate('/dashboard')} style={{ width: '100%' }}>
+            📊 학습 대시보드
+          </button>
+          <button className="btn btn-secondary" onClick={() => navigate('/log/detailed')} style={{ width: '100%' }}>
+            🔍 상세 오답 노트
+          </button>
+        </div>
+
         {reviews.length === 0 ? (
           <div className="card">
             <h3>아직 학습 기록이 없습니다</h3>
             <p>학습을 시작하면 여기에 기록이 표시됩니다.</p>
-            <button className="btn btn-primary" onClick={() => navigate('/setup')} style={{ marginTop: '1rem' }}>
+            <button className="btn btn-primary" onClick={() => navigate('/add-lesson')} style={{ marginTop: '1rem' }}>
               학습 시작하기
             </button>
           </div>
@@ -53,7 +65,7 @@ export default function ReviewPage() {
 
             {reviews.map((review) => {
               const correctPercentage = Math.round((review.correctCount / review.totalQuestions) * 100)
-              const lesson = lessonInfo[review.lessonId] || { title: review.lessonId, subject: '미정' }
+              const lesson = getLessonInfo(review.lessonId)
               const status = correctPercentage >= 80 ? '완료' : correctPercentage >= 60 ? '복습 필요' : '집중 복습'
 
               return (

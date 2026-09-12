@@ -2,7 +2,7 @@
 export const elementaryLessons = [
   {
     id: 'elem-sci-01',
-    subject: 'science',
+    subject: 'physics',
     grade: 4,
     level: 'basic',
     unit: '물질과 에너지',
@@ -37,7 +37,7 @@ export const elementaryLessons = [
   },
   {
     id: 'elem-sci-02',
-    subject: 'science',
+    subject: 'biology',
     grade: 5,
     level: 'basic',
     unit: '생물과 환경',
@@ -72,7 +72,7 @@ export const elementaryLessons = [
   },
   {
     id: 'elem-sci-03',
-    subject: 'science',
+    subject: 'earthscience',
     grade: 6,
     level: 'basic',
     unit: '지구와 우주',
@@ -107,7 +107,7 @@ export const elementaryLessons = [
   },
   {
     id: 'elem-sci-04',
-    subject: 'science',
+    subject: 'physics',
     grade: 4,
     level: 'basic',
     unit: '물질과 에너지',
@@ -142,7 +142,7 @@ export const elementaryLessons = [
   },
   {
     id: 'elem-sci-05',
-    subject: 'science',
+    subject: 'biology',
     grade: 5,
     level: 'basic',
     unit: '생물과 환경',

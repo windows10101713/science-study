@@ -1,13 +1,16 @@
-import { useParams, useNavigate } from 'react-router-dom'
-import defaultLessonData from '../../../data/lessons/physics-middle-01.json'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
+import { allLessons } from '../data/lessons'
 import { getCustomConcept } from '../lib/concepts'
 
 export default function ConceptPage() {
   const { lessonId } = useParams()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const classId = searchParams.get('classId')
   const userPref = JSON.parse(localStorage.getItem('userPreference') || '{}')
   const level = userPref.level || 'curriculum'
   const customConcept = lessonId ? getCustomConcept(lessonId) : undefined
+  const builtInLesson = !customConcept ? allLessons.find((l) => l.id === lessonId) : undefined
   const lessonData = customConcept
     ? {
         ...customConcept,
@@ -26,10 +29,26 @@ export default function ConceptPage() {
           safetyWarning: '주변을 관찰할 때 이동 안전과 주변 사람을 주의하세요.',
         },
       }
-    : defaultLessonData
+    : builtInLesson
+
+  if (!lessonData) {
+    return (
+      <div className="app">
+        <header className="header">
+          <div className="container">
+            <h1>레슨을 찾을 수 없습니다</h1>
+          </div>
+        </header>
+        <main className="container">
+          <button className="btn btn-primary" onClick={() => navigate('/')}>홈으로</button>
+        </main>
+      </div>
+    )
+  }
 
   const explanationKey = level as keyof typeof lessonData.explanation
   const explanation = (lessonData.explanation as any)[explanationKey] || lessonData.explanation.curriculum
+  const backTarget = classId ? `/class/${classId}` : '/lessons'
 
   return (
     <div className="app">
@@ -103,10 +122,14 @@ export default function ConceptPage() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '2rem' }}>
-          <button className="btn btn-secondary" onClick={() => navigate('/setup')} style={{ width: '100%' }}>
+          <button className="btn btn-secondary" onClick={() => navigate(backTarget)} style={{ width: '100%' }}>
             ← 돌아가기
           </button>
-          <button className="btn btn-primary" onClick={() => navigate(`/quiz/${lessonId}`)} style={{ width: '100%' }}>
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate(`/quiz/${lessonId}${classId ? `?classId=${classId}` : ''}`)}
+            style={{ width: '100%' }}
+          >
             문제 풀이 →
           </button>
         </div>

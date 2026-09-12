@@ -323,3 +323,227 @@ body {
     flex-direction: row;
   }
 }
+
+/* 사이드바 레이아웃 */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-brand {
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 2rem;
+  padding: 0 0.5rem;
+}
+
+.sidebar-nav {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  color: white;
+  text-decoration: none;
+  opacity: 0.85;
+  transition: all 0.2s ease;
+}
+
+.sidebar-link:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-link.active {
+  background: rgba(255, 255, 255, 0.22);
+  opacity: 1;
+}
+
+.sidebar-icon {
+  font-size: 1.1rem;
+}
+
+.sidebar-user {
+  margin-top: auto;
+  padding-top: 2rem;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+@media (max-width: 768px) {
+  .app-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+  }
+
+  .sidebar-brand {
+    margin-bottom: 0;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    gap: 0.25rem;
+  }
+
+  .sidebar-link span:last-child {
+    display: none;
+  }
+
+  .sidebar-user {
+    display: none;
+  }
+}
+
+/* 클래스 카드 (홈 화면) */
+.class-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.class-card {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.class-card:hover {
+  transform: translateY(-2px);
+  border-color: #667eea;
+}
+
+.class-card .class-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+}
+
+.empty-state .empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+/* 진도 트리 (스킬 트리) */
+.skill-tree {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 0;
+  padding: 1rem 0;
+}
+
+.skill-tree-node-wrapper {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+}
+
+.skill-connector {
+  width: 4px;
+  height: 2.5rem;
+  background: #c7d2fd;
+}
+
+.skill-connector.completed {
+  background: #10b981;
+}
+
+.skill-node {
+  width: 220px;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  border: 2px solid #c7d2fd;
+  background: white;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.skill-node:hover {
+  transform: translateY(-2px);
+}
+
+.skill-node .skill-node-grade {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+.skill-node .skill-node-title {
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+.skill-node.completed {
+  border-color: #10b981;
+  background: #f0fdf4;
+}
+
+.skill-node.available {
+  border-color: #667eea;
+  background: #f0f4ff;
+}
+
+.skill-node.locked {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* 다크 모드 추가 */
+.dark-mode .sidebar {
+  background: linear-gradient(180deg, #3a3f6e 0%, #4a3364 100%);
+}
+
+.dark-mode .class-card {
+  background: #2a2a2a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .skill-node {
+  background: #2a2a2a;
+  border-color: #4a4a4a;
+}
+
+.dark-mode .skill-node.completed {
+  background: #16321f;
+}
+
+.dark-mode .skill-node.available {
+  background: #23253d;
+}

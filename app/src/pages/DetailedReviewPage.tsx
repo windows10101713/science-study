@@ -113,10 +113,10 @@ export default function DetailedReviewPage() {
 
         {/* 액션 버튼 */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '2rem' }}>
-          <button className="btn btn-secondary" onClick={() => navigate('/review')} style={{ width: '100%' }}>
+          <button className="btn btn-secondary" onClick={() => navigate('/log')} style={{ width: '100%' }}>
             ← 돌아가기
           </button>
-          <button className="btn btn-primary" onClick={() => navigate('/setup')} style={{ width: '100%' }}>
+          <button className="btn btn-primary" onClick={() => navigate('/add-lesson')} style={{ width: '100%' }}>
             계속 학습하기
           </button>
         </div>

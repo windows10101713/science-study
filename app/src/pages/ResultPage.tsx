@@ -1,9 +1,11 @@
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 
 export default function ResultPage() {
   const { lessonId } = useParams()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const classId = searchParams.get('classId')
   const [result, setResult] = useState<any>(null)
 
   useEffect(() => {
@@ -94,8 +96,12 @@ export default function ResultPage() {
           <button className="btn btn-secondary" onClick={() => navigate('/')} style={{ width: '100%' }}>
             홈으로
           </button>
-          <button className="btn btn-primary" onClick={() => navigate('/setup')} style={{ width: '100%' }}>
-            다른 주제 학습
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate(classId ? `/class/${classId}` : '/lessons')}
+            style={{ width: '100%' }}
+          >
+            학습 이어가기
           </button>
         </div>
       </main>

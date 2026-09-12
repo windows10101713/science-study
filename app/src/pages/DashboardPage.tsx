@@ -141,10 +141,10 @@ export default function DashboardPage() {
 
         {/* 액션 버튼 */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '2rem' }}>
-          <button className="btn btn-secondary" onClick={() => navigate('/setup')} style={{ width: '100%' }}>
+          <button className="btn btn-secondary" onClick={() => navigate('/add-lesson')} style={{ width: '100%' }}>
             새 학습 시작
           </button>
-          <button className="btn btn-primary" onClick={() => navigate('/review')} style={{ width: '100%' }}>
+          <button className="btn btn-primary" onClick={() => navigate('/log')} style={{ width: '100%' }}>
             오답 복습
           </button>
         </div>
