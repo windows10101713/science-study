@@ -8,17 +8,32 @@ export interface User {
   interestTopics: string[];
 }
 
-// 개념
+// 개념/레슨
 export interface Concept {
   id: string;
   subject: string;
   grade: number;
+  level?: "basic" | "curriculum" | "advanced" | "expert" | "research";
   unit: string;
   title: string;
   summary: string;
   keywords: string[];
   misconceptions: string[];
-  questionIds: string[];
+  explanation?: {
+    basic: string;
+    curriculum: string;
+    university?: string;
+  };
+  observationActivity?: {
+    title: string;
+    description: string;
+    prediction: string;
+    materials: string[];
+    steps: string[];
+    safetyWarning: string;
+  };
+  examples: string[];
+  questions: string[]; // 문제 ID 배열
 }
 
 // 사용자가 직접 등록한 개념
@@ -29,14 +44,12 @@ export interface CustomConcept extends Concept {
 // 문제
 export interface Question {
   id: string;
-  conceptId: string;
-  type: "multiple_choice" | "short_answer" | "application";
-  text: string;
-  choices?: string[];
+  type: "multiple_choice" | "short_answer" | "calculation";
+  question: string;
+  options?: string[];
   answer: string | string[];
   explanation: string;
-  difficulty: "basic" | "intermediate" | "advanced";
-  source?: string;
+  difficulty: "easy" | "medium" | "hard";
 }
 
 // 풀이 시도
