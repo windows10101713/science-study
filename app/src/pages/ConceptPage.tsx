@@ -20,6 +20,7 @@ export default function ConceptPage() {
           curriculum: `${customConcept.summary} 이 개념이 어떤 현상과 연결되는지 예시를 들어 확인해 보세요.`,
           university: `${customConcept.summary} 핵심 변인과 조건을 정리하고, 다른 개념과의 관계를 식으로 표현해 보세요.`,
         },
+        deepDive: undefined as string[] | undefined,
         observationActivity: {
           title: '내 개념 관찰하기',
           description: '주변에서 이 개념이 나타나는 사례를 찾아 기록합니다.',
@@ -47,7 +48,8 @@ export default function ConceptPage() {
   }
 
   const explanationKey = level as keyof typeof lessonData.explanation
-  const explanation = (lessonData.explanation as any)[explanationKey] || lessonData.explanation.curriculum
+  const explanation = (lessonData.explanation as any)[explanationKey] || lessonData.explanation!.curriculum
+  const observationActivity = lessonData.observationActivity!
   const backTarget = classId ? `/class/${classId}` : '/lessons'
 
   return (
@@ -69,6 +71,17 @@ export default function ConceptPage() {
             수준: <strong>{level === 'basic' ? '🌱 기초' : level === 'curriculum' ? '📚 교육과정' : '🎓 대학'}</strong>
           </p>
         </div>
+
+        {lessonData.deepDive && lessonData.deepDive.length > 0 && (
+          <div className="card" style={{ backgroundColor: '#f5f3ff' }}>
+            <h3>🔬 심화 이론</h3>
+            <div style={{ display: 'grid', gap: '0.75rem' }}>
+              {lessonData.deepDive.map((paragraph, idx) => (
+                <p key={idx} style={{ lineHeight: '1.8' }}>{paragraph}</p>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="card">
           <h3>💡 핵심 개념</h3>
@@ -94,29 +107,29 @@ export default function ConceptPage() {
 
         <div className="card" style={{ backgroundColor: '#fff7ed' }}>
           <h3>🧪 관찰 활동</h3>
-          <h4 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>📌 {lessonData.observationActivity.title}</h4>
-          <p>{lessonData.observationActivity.description}</p>
+          <h4 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>📌 {observationActivity.title}</h4>
+          <p>{observationActivity.description}</p>
           
           <h4 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>🤔 예측</h4>
-          <p><em>{lessonData.observationActivity.prediction}</em></p>
+          <p><em>{observationActivity.prediction}</em></p>
           
           <h4 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>🛠️ 준비물</h4>
           <ul style={{ marginLeft: '1.5rem' }}>
-            {lessonData.observationActivity.materials.map((material, idx) => (
+            {observationActivity.materials.map((material, idx) => (
               <li key={idx}>{material}</li>
             ))}
           </ul>
 
           <h4 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>📋 단계</h4>
           <ol style={{ marginLeft: '1.5rem' }}>
-            {lessonData.observationActivity.steps.map((step, idx) => (
+            {observationActivity.steps.map((step, idx) => (
               <li key={idx} style={{ marginBottom: '0.5rem' }}>{step}</li>
             ))}
           </ol>
 
-          {lessonData.observationActivity.safetyWarning && (
+          {observationActivity.safetyWarning && (
             <div style={{ padding: '1rem', backgroundColor: '#fee2e2', borderLeft: '4px solid #ef4444', marginTop: '1rem' }}>
-              <strong>⚠️ 안전 안내:</strong> {lessonData.observationActivity.safetyWarning}
+              <strong>⚠️ 안전 안내:</strong> {observationActivity.safetyWarning}
             </div>
           )}
         </div>

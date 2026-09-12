@@ -15,6 +15,9 @@ export const SUBJECTS: SubjectMeta[] = [
   { id: 'medicine', label: '의학', icon: '🩺' },
 ]
 
+// 도서관 전용: 특정 분야에 속하지 않는 일반 과학 도서
+export const GENERAL_SUBJECT: SubjectMeta = { id: 'general', label: '일반 과학', icon: '🔬' }
+
 // 학습 수준(교육 단계) 목록
 export interface LevelMeta {
   id: string
@@ -33,6 +36,7 @@ export const LEVELS: LevelMeta[] = [
 ]
 
 export function getSubjectMeta(id: string): SubjectMeta | undefined {
+  if (id === GENERAL_SUBJECT.id) return GENERAL_SUBJECT
   return SUBJECTS.find((s) => s.id === id)
 }
 

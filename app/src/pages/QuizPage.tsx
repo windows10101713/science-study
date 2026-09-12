@@ -4,6 +4,7 @@ import { allQuestions } from '../data/questions'
 import { allLessons } from '../data/lessons'
 import { getCustomConcept } from '../lib/concepts'
 import { useLearningStore } from '../lib/store'
+import { isAnswerCorrect } from '../lib/grading'
 import '../styles/index.css'
 
 export default function QuizPage() {
@@ -25,12 +26,12 @@ export default function QuizPage() {
     return allLessons.find(l => l.id === lessonId)
   }, [lessonId])
 
-  // 이 레슨의 문제들 가져오기
+  // 이 레슨의 문제들 가져오기 (최대 6문제)
   const questions = useMemo(() => {
     if (!lesson || !lesson.questions || lesson.questions.length === 0) {
       return []
     }
-    return allQuestions.filter(q => lesson.questions.includes(q.id)).slice(0, 4)
+    return allQuestions.filter(q => lesson.questions.includes(q.id)).slice(0, 6)
   }, [lesson])
 
   // 선택지 섞기 (multiple_choice)
@@ -79,10 +80,7 @@ export default function QuizPage() {
     if (isLastQuestion) {
       // 결과 계산
       const correctCount = questions.reduce((count, q) => {
-        const userAnswer = answers[q.id]
-        const correct = userAnswer === q.answer || 
-                       (q.type === 'short_answer' && userAnswer?.includes(q.answer as string))
-        return correct ? count + 1 : count
+        return isAnswerCorrect(q, answers[q.id]) ? count + 1 : count
       }, 0)
       const score = Math.round((correctCount / questions.length) * 100)
       const timeSpent = Math.round((Date.now() - startTime) / 1000)
@@ -104,9 +102,7 @@ export default function QuizPage() {
   }
 
   const progress = ((currentQuestionIdx + 1) / questions.length) * 100
-  const isCorrect = currentQuestion.answer === answers[currentQuestion.id] ||
-                   (currentQuestion.type === 'short_answer' && 
-                    answers[currentQuestion.id]?.includes(currentQuestion.answer as string))
+  const isCorrect = isAnswerCorrect(currentQuestion, answers[currentQuestion.id])
 
   return (
     <div className="app">

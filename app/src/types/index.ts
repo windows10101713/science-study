@@ -24,6 +24,7 @@ export interface Concept {
     curriculum: string;
     university?: string;
   };
+  deepDive?: string[]; // 심화 이론 설명 (추가 이론 단락들)
   observationActivity?: {
     title: string;
     description: string;

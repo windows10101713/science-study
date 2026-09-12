@@ -5,6 +5,8 @@ import HomePage from './pages/HomePage'
 import LessonsPage from './pages/LessonsPage'
 import AddLessonPage from './pages/AddLessonPage'
 import ClassDetailPage from './pages/ClassDetailPage'
+import LibraryPage from './pages/LibraryPage'
+import LibraryBookPage from './pages/LibraryBookPage'
 import ConceptPage from './pages/ConceptPage'
 import QuizPage from './pages/QuizPage'
 import ResultPage from './pages/ResultPage'
@@ -32,6 +34,8 @@ function App() {
               <Route path="/lessons" element={<LessonsPage />} />
               <Route path="/add-lesson" element={<AddLessonPage />} />
               <Route path="/class/:classId" element={<ClassDetailPage />} />
+              <Route path="/library" element={<LibraryPage />} />
+              <Route path="/library/:bookId" element={<LibraryBookPage />} />
               <Route path="/concept/:lessonId" element={<ConceptPage />} />
               <Route path="/quiz/:lessonId" element={<QuizPage />} />
               <Route path="/result/:lessonId" element={<ResultPage />} />
