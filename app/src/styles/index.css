@@ -220,3 +220,106 @@ body {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* 대시보드 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.stat-icon {
+  font-size: 2rem;
+}
+
+.stat-content h3 {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+  font-weight: 500;
+}
+
+.stat-number {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #667eea;
+  margin: 0.25rem 0 0 0;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #999;
+  margin: 0;
+}
+
+/* 다크 모드 */
+.dark-mode {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+.dark-mode body {
+  background-color: #0f0f0f;
+}
+
+.dark-mode .header {
+  background: linear-gradient(135deg, #4a5bcc 0%, #5a3b8c 100%);
+}
+
+.dark-mode .card {
+  background: #2a2a2a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .card h3 {
+  color: #90b3ff;
+}
+
+.dark-mode .card p {
+  color: #b0b0b0;
+}
+
+.dark-mode .stat-card {
+  background: #2a2a2a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .form-group input,
+.dark-mode .form-group select,
+.dark-mode .form-group textarea {
+  background: #3a3a3a;
+  border-color: #4a4a4a;
+  color: #e0e0e0;
+}
+
+.dark-mode .form-group label {
+  color: #e0e0e0;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stat-card {
+    flex-direction: row;
+  }
+}

@@ -1,8 +1,11 @@
 import { useNavigate } from 'react-router-dom'
+import { useLearningStore } from '../lib/store'
 import '../styles/index.css'
 
 export default function HomePage() {
   const navigate = useNavigate()
+  const { progress } = useLearningStore()
+  const hasProgress = progress.length > 0
 
   return (
     <div className="app">
@@ -24,7 +27,7 @@ export default function HomePage() {
         <div className="card">
           <h3>📚 지원 과목</h3>
           <ul style={{ marginLeft: '1.5rem', lineHeight: '1.8' }}>
-            <li><strong>중학교 물리</strong> (10개 개념, 40개 문제) - 현재 준비 중</li>
+            <li><strong>중학교 물리</strong> (10개 개념, 40개 문제)</li>
             <li>중학교 화학 - 준비 중</li>
             <li>중학교 생물 - 준비 중</li>
           </ul>
@@ -41,10 +44,15 @@ export default function HomePage() {
           </ul>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: hasProgress ? 'repeat(3, 1fr)' : '1fr 1fr', gap: '1rem', marginTop: '2rem' }}>
           <button className="btn btn-primary" onClick={() => navigate('/setup')} style={{ width: '100%' }}>
             지금 시작하기
           </button>
+          {hasProgress && (
+            <button className="btn btn-secondary" onClick={() => navigate('/dashboard')} style={{ width: '100%' }}>
+              📊 대시보드
+            </button>
+          )}
           <button className="btn btn-secondary" onClick={() => navigate('/review')} style={{ width: '100%' }}>
             오답 복습
           </button>
