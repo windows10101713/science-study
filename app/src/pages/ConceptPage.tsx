@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { allLessons } from '../data/lessons'
 import { getCustomConcept } from '../lib/concepts'
+import { searchTerms, ScienceTerm } from '../data/terms'
 
 export default function ConceptPage() {
   const { lessonId } = useParams()
@@ -9,6 +10,7 @@ export default function ConceptPage() {
   const [searchParams] = useSearchParams()
   const classId = searchParams.get('classId')
   const [showSimulation, setShowSimulation] = useState(false)
+  const [activeKeywordTerm, setActiveKeywordTerm] = useState<{ keyword: string; term?: ScienceTerm } | null>(null)
   const userPref = JSON.parse(localStorage.getItem('userPreference') || '{}')
   const level = userPref.level || 'curriculum'
   const customConcept = lessonId ? getCustomConcept(lessonId) : undefined
@@ -86,13 +88,35 @@ export default function ConceptPage() {
         )}
 
         <div className="card">
-          <h3>💡 핵심 개념</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-            {lessonData.keywords.map((keyword, idx) => (
-              <div key={idx} style={{ padding: '1rem', backgroundColor: '#f0f4ff', borderRadius: '0.5rem' }}>
-                <strong>{keyword}</strong>
-              </div>
-            ))}
+          <h3>💡 핵심 개념 (클릭 시 상세 해설)</h3>
+          <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+            궁금한 키워드를 클릭하여 용어 사전의 구체적인 해설을 확인하세요.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
+            {lessonData.keywords.map((keyword, idx) => {
+              const matched = searchTerms(keyword, lessonData.subject)[0] || searchTerms(keyword, 'all')[0]
+              return (
+                <div
+                  key={idx}
+                  onClick={() => setActiveKeywordTerm({ keyword, term: matched })}
+                  style={{
+                    padding: '0.85rem 1rem',
+                    backgroundColor: '#f0f4ff',
+                    borderRadius: '0.5rem',
+                    border: '1px solid #c7d2fd',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                  className="keyword-chip"
+                >
+                  <strong style={{ color: '#4338ca' }}>{keyword}</strong>
+                  <span style={{ fontSize: '0.8rem', color: '#667eea' }}>🔍 보기</span>
+                </div>
+              )
+            })}
           </div>
         </div>
 
@@ -163,6 +187,92 @@ export default function ConceptPage() {
             문제 풀이 →
           </button>
         </div>
+
+        {/* 핵심 개념 클릭 시 모달 */}
+        {activeKeywordTerm && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.6)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+              padding: '1rem',
+            }}
+            onClick={() => setActiveKeywordTerm(null)}
+          >
+            <div
+              className="card"
+              style={{ maxWidth: '550px', width: '100%', margin: 0, maxHeight: '85vh', overflowY: 'auto' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.85rem', color: '#667eea', fontWeight: 600 }}>
+                  💡 핵심 개념 상세 사전
+                </span>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setActiveKeywordTerm(null)}
+                  style={{ padding: '0.2rem 0.5rem', fontSize: '0.85rem' }}
+                >
+                  ✕ 닫기
+                </button>
+              </div>
+
+              <h2 style={{ fontSize: '1.4rem', color: '#1e1b4b', marginTop: '0.5rem' }}>
+                {activeKeywordTerm.keyword}
+                {activeKeywordTerm.term?.en && (
+                  <span style={{ fontSize: '0.95rem', color: '#667eea', fontWeight: 400, marginLeft: '0.5rem' }}>
+                    ({activeKeywordTerm.term.en})
+                  </span>
+                )}
+              </h2>
+
+              {activeKeywordTerm.term ? (
+                <>
+                  <div style={{ padding: '0.85rem', backgroundColor: '#f0f4ff', borderRadius: '0.5rem', margin: '1rem 0' }}>
+                    <strong>📌 정의</strong>
+                    <p style={{ marginTop: '0.25rem', lineHeight: '1.6' }}>{activeKeywordTerm.term.definition}</p>
+                  </div>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <strong style={{ color: '#4338ca' }}>🔬 구체적 설명</strong>
+                    <p style={{ marginTop: '0.25rem', lineHeight: '1.7', color: '#374151' }}>
+                      {activeKeywordTerm.term.detailedExplanation}
+                    </p>
+                  </div>
+                  {activeKeywordTerm.term.formulaOrExample && (
+                    <div style={{ padding: '0.85rem', backgroundColor: '#fff7ed', borderRadius: '0.5rem' }}>
+                      <strong style={{ color: '#c2410c' }}>📐 수식 / 적용 예시</strong>
+                      <p style={{ marginTop: '0.25rem', fontFamily: 'monospace' }}>{activeKeywordTerm.term.formulaOrExample}</p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div style={{ padding: '1rem 0', lineHeight: '1.7' }}>
+                  <p>
+                    <strong>'{activeKeywordTerm.keyword}'</strong>은(는) 이 레슨({lessonData.title})에서 다루는 주요 과학 핵심 용어입니다.
+                  </p>
+                  <p style={{ color: '#666', marginTop: '0.5rem', fontSize: '0.9rem' }}>
+                    해당 개념을 깊이 있게 이해하고 활용할 수 있도록 관련 단원({lessonData.unit})과의 연계 설명을 참고하세요.
+                  </p>
+                </div>
+              )}
+
+              <button
+                className="btn btn-primary"
+                onClick={() => setActiveKeywordTerm(null)}
+                style={{ width: '100%', marginTop: '1.25rem' }}
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   )

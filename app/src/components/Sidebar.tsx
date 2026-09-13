@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { to: '/', label: '홈', icon: '🏠', end: true },
   { to: '/lessons', label: '레슨', icon: '📚', end: false },
   { to: '/library', label: '도서관', icon: '📖', end: false },
+  { to: '/dictionary', label: '사전', icon: '🔤', end: false },
   { to: '/log', label: '로그', icon: '📝', end: false },
   { to: '/settings', label: '설정', icon: '⚙️', end: false },
 ]
