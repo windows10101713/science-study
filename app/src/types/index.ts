@@ -50,6 +50,7 @@ export interface Question {
   options?: string[];
   answer: string | string[];
   explanation: string;
+  hint?: string;
   difficulty: "easy" | "medium" | "hard";
 }
 

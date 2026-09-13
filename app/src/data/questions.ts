@@ -6,6 +6,7 @@ export interface Question {
   options?: string[]
   answer: string | string[]
   explanation: string
+  hint?: string
   difficulty: 'easy' | 'medium' | 'hard'
 }
 
@@ -6670,6 +6671,17 @@ export const allQuestions: Question[] = [
 
 // ID로 빠르게 찾을 수 있도록 맵 생성
 export const questionsMap = new Map(allQuestions.map(q => [q.id, q]));
+
+export function getQuestionHint(q: Question): string {
+  if (q.hint) return q.hint
+  if (q.type === 'multiple_choice') {
+    return `💡 힌트: 해설의 핵심 키워드를 생각해보세요. "${q.explanation.slice(0, 35)}..."`
+  }
+  if (q.type === 'calculation') {
+    return `💡 힌트: 공식을 떠올려보세요. (${q.explanation.slice(0, 45)})`
+  }
+  return `💡 힌트: "${q.explanation.slice(0, 40)}..." 개념을 참고하세요.`
+}
 
 export function getQuestionsByLessonId(lessonId: string): Question[] {
   const prefix = lessonId.split('-').slice(0, -1).join('-');

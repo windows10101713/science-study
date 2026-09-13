@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage'
 import LessonsPage from './pages/LessonsPage'
 import AddLessonPage from './pages/AddLessonPage'
 import ClassDetailPage from './pages/ClassDetailPage'
+import ToolsPage from './pages/ToolsPage'
 import LibraryPage from './pages/LibraryPage'
 import LibraryBookPage from './pages/LibraryBookPage'
 import DictionaryPage from './pages/DictionaryPage'
@@ -40,6 +41,7 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/" element={<HomePage />} />
               <Route path="/lessons" element={<LessonsPage />} />
+              <Route path="/tools" element={<ToolsPage />} />
               <Route path="/add-lesson" element={<AddLessonPage />} />
               <Route path="/class/:classId" element={<ClassDetailPage />} />
               <Route path="/library" element={<LibraryPage />} />

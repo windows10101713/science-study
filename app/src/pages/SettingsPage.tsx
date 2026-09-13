@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLearningStore } from '../lib/store'
-import { logout, getCurrentUser } from '../lib/auth'
+import { logout, getCurrentUser, deleteAccount } from '../lib/auth'
 import { SUBJECTS, LEVELS } from '../data/subjects'
 import '../styles/index.css'
 
@@ -46,6 +46,16 @@ export default function SettingsPage() {
       localStorage.removeItem('customConcepts')
       setCustomConceptCount(0)
       alert('맞춤 개념이 삭제되었습니다.')
+    }
+  }
+
+  const handleDeleteAccount = () => {
+    if (confirm(`정말로 계정 '${user}' 및 모든 관련 데이터를 삭제하고 회원 탈퇴하시겠습니까? 이 작업은 취소할 수 없습니다.`)) {
+      resetProgress()
+      localStorage.removeItem('customConcepts')
+      deleteAccount()
+      alert('계정이 성공적으로 삭제되었습니다. 이용해 주셔서 감사합니다.')
+      navigate('/login')
     }
   }
 
@@ -353,14 +363,17 @@ export default function SettingsPage() {
         <div className="card" style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca' }}>
           <h3 style={{ color: '#ef4444' }}>🚨 위험 구역</h3>
           <p style={{ fontSize: '0.9rem', color: '#991b1b', marginTop: '0.25rem' }}>
-            저장된 모든 진도, 오답 노트, 사용자 맞춤 개념 데이터를 관리할 수 있습니다.
+            저장된 모든 진도, 오답 노트, 사용자 맞춤 개념 데이터 및 계정을 관리할 수 있습니다.
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
             <button className="btn btn-secondary" onClick={handleClearCustomConcepts} style={{ color: '#dc2626' }}>
-              📌 내가 만든 개념만 삭제
+              📌 내가 만든 개념 삭제
             </button>
-            <button className="btn btn-secondary" onClick={handleReset} style={{ color: '#dc2626', fontWeight: 600 }}>
+            <button className="btn btn-secondary" onClick={handleReset} style={{ color: '#dc2626' }}>
               🗑 전체 학습 데이터 초기화
+            </button>
+            <button className="btn btn-secondary" onClick={handleDeleteAccount} style={{ color: '#b91c1c', backgroundColor: '#fee2e2', fontWeight: 600 }}>
+              ❌ 계정 삭제 (회원 탈퇴)
             </button>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
-import { allQuestions } from '../data/questions'
+import { allQuestions, getQuestionHint } from '../data/questions'
 import { allLessons } from '../data/lessons'
 import { getCustomConcept } from '../lib/concepts'
 import { useLearningStore } from '../lib/store'
@@ -17,6 +17,7 @@ export default function QuizPage() {
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [submitted, setSubmitted] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
+  const [showHint, setShowHint] = useState(false)
   const [startTime] = useState(() => Date.now())
 
   // 레슨 정보 가져오기
@@ -102,6 +103,7 @@ export default function QuizPage() {
       setCurrentQuestionIdx(currentQuestionIdx + 1)
       setSubmitted(false)
       setShowExplanation(false)
+      setShowHint(false)
     }
   }
 
@@ -217,6 +219,31 @@ export default function QuizPage() {
               )}
             </div>
           )}
+
+          {/* 힌트 토글 버튼 */}
+          <div style={{ marginBottom: '1rem' }}>
+            <button
+              className="btn btn-secondary"
+              onClick={() => setShowHint((v) => !v)}
+              style={{ fontSize: '0.85rem', padding: '0.4rem 0.8rem' }}
+            >
+              {showHint ? '🙈 힌트 닫기' : '💡 힌트 보기'}
+            </button>
+            {showHint && (
+              <div style={{
+                padding: '0.85rem 1rem',
+                backgroundColor: '#fffbeb',
+                border: '1px solid #fde68a',
+                borderRadius: '0.5rem',
+                marginTop: '0.5rem',
+                color: '#92400e',
+                fontSize: '0.9rem',
+                lineHeight: '1.6'
+              }}>
+                {getQuestionHint(currentQuestion)}
+              </div>
+            )}
+          </div>
 
           {showExplanation && (
             <div style={{

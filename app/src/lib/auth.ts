@@ -67,3 +67,12 @@ export function logout() {
 export function getCurrentUser(): string | null {
   return localStorage.getItem(CURRENT_USER_KEY)
 }
+
+export function deleteAccount(): boolean {
+  const current = getCurrentUser()
+  if (!current) return false
+  const users = getUsers().filter((u) => u.username !== current)
+  saveUsers(users)
+  logout()
+  return true
+}
