@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { allLessons } from '../data/lessons'
 import { getCustomConcept } from '../lib/concepts'
@@ -7,6 +8,7 @@ export default function ConceptPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const classId = searchParams.get('classId')
+  const [showSimulation, setShowSimulation] = useState(false)
   const userPref = JSON.parse(localStorage.getItem('userPreference') || '{}')
   const level = userPref.level || 'curriculum'
   const customConcept = lessonId ? getCustomConcept(lessonId) : undefined
@@ -112,7 +114,7 @@ export default function ConceptPage() {
           
           <h4 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>🤔 예측</h4>
           <p><em>{observationActivity.prediction}</em></p>
-          
+
           <h4 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>🛠️ 준비물</h4>
           <ul style={{ marginLeft: '1.5rem' }}>
             {observationActivity.materials.map((material, idx) => (
@@ -132,6 +134,21 @@ export default function ConceptPage() {
               <strong>⚠️ 안전 안내:</strong> {observationActivity.safetyWarning}
             </div>
           )}
+
+          <div style={{ marginTop: '1.5rem' }}>
+            <button className="btn btn-primary" onClick={() => setShowSimulation((v) => !v)} style={{ width: '100%' }}>
+              {showSimulation ? '🔽 결과 시뮬레이션 닫기' : '🔮 결과 시뮬레이션 확인하기'}
+            </button>
+            {showSimulation && (
+              <div style={{ padding: '1rem', backgroundColor: '#eef2ff', borderRadius: '0.5rem', marginTop: '1rem' }}>
+                <p style={{ fontWeight: 'bold', color: '#4338ca', marginBottom: '0.5rem' }}>🔬 실제로는 이렇게 됩니다</p>
+                <p style={{ lineHeight: '1.8' }}>{lessonData.explanation!.curriculum}</p>
+                <p style={{ color: '#6b7280', fontSize: '0.9rem', marginTop: '0.5rem' }}>
+                  직접 실험하기 전에 예측과 실제 결과를 비교해 보고, 왜 그런 차이가 나는지 생각해보세요.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '2rem' }}>
