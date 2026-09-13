@@ -1,53 +1,18 @@
 import { useState, useRef, useEffect } from 'react'
+import { ALL_ELEMENTS, PeriodicElement } from '../data/elements'
 import '../styles/index.css'
-
-// 주기율표 주요 원소 데이터 (1~36번)
-interface PeriodicElement {
-  number: number
-  symbol: string
-  name: string
-  mass: number
-  category: string
-  electronConfig: string
-  description: string
-  group: number
-  period: number
-}
-
-const PERIODIC_ELEMENTS: PeriodicElement[] = [
-  { number: 1, symbol: 'H', name: '수소', mass: 1.008, category: '비금속', electronConfig: '1s¹', description: '우주에서 가장 풍부한 원소로 수소 결합과 반응의 기본입니다.', group: 1, period: 1 },
-  { number: 2, symbol: 'He', name: '헬륨', mass: 4.0026, category: '비활성기체', electronConfig: '1s²', description: '가장 안정한 비활성 기체로 반응성이 매우 낮습니다.', group: 18, period: 1 },
-  { number: 3, symbol: 'Li', name: '리튬', mass: 6.94, category: '알칼리금속', electronConfig: '[He] 2s¹', description: '가장 가벼운 금속으로 리튬 이온 배터리에 활용됩니다.', group: 1, period: 2 },
-  { number: 4, symbol: 'Be', name: '베릴륨', mass: 9.0122, category: '알칼리토금속', electronConfig: '[He] 2s²', description: '합금과 합체 제작에 사용되는 가볍고 강한 금속입니다.', group: 2, period: 2 },
-  { number: 5, symbol: 'B', name: '붕소', mass: 10.81, category: '준금속', electronConfig: '[He] 2s² 2p¹', description: '반도체 도핑과 유리에 사용되는 준금속 원소입니다.', group: 13, period: 2 },
-  { number: 6, symbol: 'C', name: '탄소', mass: 12.011, category: '비금속', electronConfig: '[He] 2s² 2p²', description: '유기화학과 모든 생명체의 골격을 이루는 원소입니다.', group: 14, period: 2 },
-  { number: 7, symbol: 'N', name: '질소', mass: 14.007, category: '비금속', electronConfig: '[He] 2s² 2p³', description: '대기의 78%를 차지하며 아미노산의 구성 요소입니다.', group: 15, period: 2 },
-  { number: 8, symbol: 'O', name: '산소', mass: 15.999, category: '비금속', electronConfig: '[He] 2s² 2p⁴', description: '세포 호흡과 연소 반응의 필수적인 원소입니다.', group: 16, period: 2 },
-  { number: 9, symbol: 'F', name: '플루오린', mass: 18.998, category: '할로젠', electronConfig: '[He] 2s² 2p⁵', description: '가장 전기음성도가 높은 할로젠 원소입니다.', group: 17, period: 2 },
-  { number: 10, symbol: 'Ne', name: '네온', mass: 20.180, category: '비활성기체', electronConfig: '[He] 2s² 2p⁶', description: '네온사인의 주황빛 조명에 쓰이는 비활성 기체입니다.', group: 18, period: 2 },
-  { number: 11, symbol: 'Na', name: '나트륨', mass: 22.990, category: '알칼리금속', electronConfig: '[Ne] 3s¹', description: '소금(NaCl)의 구성 성분이며 신경 전달에 관여합니다.', group: 1, period: 3 },
-  { number: 12, symbol: 'Mg', name: '마그네슘', mass: 24.305, category: '알칼리토금속', electronConfig: '[Ne] 3s²', description: '엽록소의 중심 원소이며 경량 합금재로 쓰입니다.', group: 2, period: 3 },
-  { number: 13, symbol: 'Al', name: '알루미늄', mass: 26.982, category: '전이후금속', electronConfig: '[Ne] 3s² 3p¹', description: '가볍고 부식에 강한 가공성 금속입니다.', group: 13, period: 3 },
-  { number: 14, symbol: 'Si', name: '규소 (실리콘)', mass: 28.085, category: '준금속', electronConfig: '[Ne] 3s² 3p²', description: '현대 반도체 산업의 핵심 준금속 소재입니다.', group: 14, period: 3 },
-  { number: 15, symbol: 'P', name: '인', mass: 30.974, category: '비금속', electronConfig: '[Ne] 3s² 3p³', description: 'DNA, RNA 및 ATP 에너지 분자의 구성 성분입니다.', group: 15, period: 3 },
-  { number: 16, symbol: 'S', name: '황', mass: 32.06, category: '비금속', electronConfig: '[Ne] 3s² 3p⁴', description: '단백질의 디설피드 결합 형성에 관여합니다.', group: 16, period: 3 },
-  { number: 17, symbol: 'Cl', name: '염소', mass: 35.45, category: '할로젠', electronConfig: '[Ne] 3s² 3p⁵', description: '강한 자극성을 지닌 소독 및 정수용 원소입니다.', group: 17, period: 3 },
-  { number: 18, symbol: 'Ar', name: '아르곤', mass: 39.948, category: '비활성기체', electronConfig: '[Ne] 3s² 3p⁶', description: '대기 중 세 번째로 많은 비활성 기체입니다.', group: 18, period: 3 },
-  { number: 19, symbol: 'K', name: '칼륨', mass: 39.098, category: '알칼리금속', electronConfig: '[Ar] 4s¹', description: '세포 내 전해질 균형과 삼투압 조절에 필수적입니다.', group: 1, period: 4 },
-  { number: 20, symbol: 'Ca', name: '칼슘', mass: 40.078, category: '알칼리토금속', electronConfig: '[Ar] 4s²', description: '뼈와 치아 구성, 근육 수축의 핵심 무기질입니다.', group: 2, period: 4 },
-  { number: 26, symbol: 'Fe', name: '철', mass: 55.845, category: '전이금속', electronConfig: '[Ar] 3d⁶ 4s²', description: '혈액 내 적혈구 적혈구 헤모글로빈 중심 원소입니다.', group: 8, period: 4 },
-  { number: 29, symbol: 'Cu', name: '구리', mass: 63.546, category: '전이금속', electronConfig: '[Ar] 3d¹⁰ 4s¹', description: '우수한 전기 전도성을 가진 전선용 금속입니다.', group: 11, period: 4 },
-  { number: 30, symbol: 'Zn', name: '아연', mass: 65.38, category: '전이금속', electronConfig: '[Ar] 3d¹⁰ 4s²', description: '효소 작용과 도금에 널리 활용되는 전이금속입니다.', group: 12, period: 4 },
-]
 
 export default function ToolsPage() {
   const [activeTab, setActiveTab] = useState<'table' | 'calculator' | 'simulation'>('table')
 
   // === 주기율표 상태 ===
-  const [selectedElement, setSelectedElement] = useState<PeriodicElement | null>(PERIODIC_ELEMENTS[0])
+  const [selectedElement, setSelectedElement] = useState<PeriodicElement | null>(ALL_ELEMENTS[0])
+  const [elementCategoryFilter, setElementCategoryFilter] = useState<string>('all')
+  const [elementSearchQuery, setElementSearchQuery] = useState<string>('')
 
   // === 계산기 상태 ===
-  const [calcType, setCalcType] = useState<'force' | 'molarity' | 'ohm' | 'energy' | 'ph'>('force')
+  const [calcType, setCalcType] = useState<'force' | 'molarity' | 'ohm' | 'energy' | 'ph' | 'gas' | 'snell' | 'halflife' | 'centraldogma'>('force')
+
   // 1. Force: F = m * a
   const [mass, setMass] = useState<number>(10)
   const [accel, setAccel] = useState<number>(9.8)
@@ -68,22 +33,45 @@ export default function ToolsPage() {
   // 5. pH: pH = -log10[H+]
   const [hConc, setHConc] = useState<number>(0.001)
 
-  // === 시뮬레이터 상태 ===
-  const [simType, setSimType] = useState<'projectile' | 'atom' | 'wave'>('projectile')
+  // 6. Ideal Gas: PV = nRT -> P = nRT/V
+  const [gasN, setGasN] = useState<number>(1) // mol
+  const [gasT, setGasT] = useState<number>(298.15) // K (25°C)
+  const [gasV, setGasV] = useState<number>(22.4) // L
 
-  // 포물선 시뮬레이터
+  // 7. Snell's Law: n1 * sin(θ1) = n2 * sin(θ2)
+  const [n1, setN1] = useState<number>(1.0) // 공기
+  const [n2, setN2] = useState<number>(1.33) // 물
+  const [theta1, setTheta1] = useState<number>(30) // 입사각
+
+  // 8. Half-Life: N(t) = N0 * (1/2)^(t / T_half)
+  const [n0, setN0] = useState<number>(1000)
+  const [tHalf, setTHalf] = useState<number>(5730) // C-14 반감기
+  const [elapsedT, setElapsedT] = useState<number>(11460)
+
+  // 9. Central Dogma: DNA -> RNA -> Amino Acid
+  const [dnaSeq, setDnaSeq] = useState<string>('TACGTTCAACTG')
+
+  // === 시뮬레이터 상태 ===
+  const [simType, setSimType] = useState<'projectile' | 'atom' | 'wave' | 'pendulum'>('projectile')
+
+  // 1) 포물선 시뮬레이터
   const [v0, setV0] = useState<number>(50)
   const [angle, setAngle] = useState<number>(45)
   const projCanvasRef = useRef<HTMLCanvasElement>(null)
 
-  // 원자 모형 시뮬레이터
-  const [atomZ, setAtomZ] = useState<number>(6) // 탄소 default
+  // 2) 원자 모형 시뮬레이터
+  const [atomZ, setAtomZ] = useState<number>(6)
   const atomCanvasRef = useRef<HTMLCanvasElement>(null)
 
-  // 파동 간섭 시뮬레이터
+  // 3) 파동 간섭 시뮬레이터
   const [waveFreq, setWaveFreq] = useState<number>(2)
   const [waveDist, setWaveDist] = useState<number>(40)
   const waveCanvasRef = useRef<HTMLCanvasElement>(null)
+
+  // 4) 단진자 운동 시뮬레이터
+  const [pendulumL, setPendulumL] = useState<number>(1.5) // m
+  const [pendulumMaxAngle, setPendulumMaxAngle] = useState<number>(30) // deg
+  const pendulumCanvasRef = useRef<HTMLCanvasElement>(null)
 
   // --- 1. 포물선 시뮬레이터 Canvas 애니메이션 ---
   useEffect(() => {
@@ -303,12 +291,89 @@ export default function ToolsPage() {
     return () => cancelAnimationFrame(animId)
   }, [simType, waveFreq, waveDist])
 
+  // --- 4. 단진자 시뮬레이터 Canvas ---
+  useEffect(() => {
+    if (simType !== 'pendulum' || !pendulumCanvasRef.current) return
+    const canvas = pendulumCanvasRef.current
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    let animId: number
+    let time = 0
+    const g = 9.8
+    const omega = Math.sqrt(g / Math.max(0.1, pendulumL))
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      const cx = canvas.width / 2
+      const cy = 40
+
+      const maxRad = (pendulumMaxAngle * Math.PI) / 180
+      const theta = maxRad * Math.cos(omega * time)
+
+      const lengthPx = Math.min(180, pendulumL * 90)
+      const bx = cx + lengthPx * Math.sin(theta)
+      const by = cy + lengthPx * Math.cos(theta)
+
+      // 천장
+      ctx.beginPath()
+      ctx.moveTo(cx - 50, cy)
+      ctx.lineTo(cx + 50, cy)
+      ctx.strokeStyle = '#475569'
+      ctx.lineWidth = 4
+      ctx.stroke()
+
+      // 실
+      ctx.beginPath()
+      ctx.moveTo(cx, cy)
+      ctx.lineTo(bx, by)
+      ctx.strokeStyle = '#64748b'
+      ctx.lineWidth = 2
+      ctx.stroke()
+
+      // 추
+      ctx.beginPath()
+      ctx.arc(bx, by, 16, 0, Math.PI * 2)
+      ctx.fillStyle = '#6366f1'
+      ctx.fill()
+      ctx.strokeStyle = '#ffffff'
+      ctx.lineWidth = 2
+      ctx.stroke()
+
+      // 주기 표시
+      const periodT = (2 * Math.PI * Math.sqrt(pendulumL / g)).toFixed(2)
+      ctx.fillStyle = '#1e293b'
+      ctx.font = 'bold 13px sans-serif'
+      ctx.textAlign = 'center'
+      ctx.fillText(`이론 주기 T = 2π√(L/g) = ${periodT}초`, cx, canvas.height - 20)
+
+      time += 0.03
+      animId = requestAnimationFrame(draw)
+    }
+
+    draw()
+    return () => cancelAnimationFrame(animId)
+  }, [simType, pendulumL, pendulumMaxAngle])
+
+  // 원소 필터링
+  const filteredElements = ALL_ELEMENTS.filter((elem) => {
+    if (elementCategoryFilter !== 'all' && elem.category !== elementCategoryFilter) return false
+    if (elementSearchQuery.trim()) {
+      const q = elementSearchQuery.trim().toLowerCase()
+      const matchName = elem.name.toLowerCase().includes(q)
+      const matchSymbol = elem.symbol.toLowerCase().includes(q)
+      const matchNum = String(elem.number) === q
+      if (!matchName && !matchSymbol && !matchNum) return false
+    }
+    return true
+  })
+
   return (
     <div className="app">
       <header className="header">
         <div className="container">
-          <h1>🛠️ 과학 실험실 & 탐구 도구함</h1>
-          <p>인터랙티브 주기율표, 정밀 과학 계산기, 시각적 물리/화학 시뮬레이터를 사용해 보세요</p>
+          <h1>🛠️ 과학 실험실 & 종합 탐구 도구함</h1>
+          <p>118개 전체 원소 주기율표, 9종 고급 과학 계산기 및 4종 HTML5 Canvas 시뮬레이터</p>
         </div>
       </header>
 
@@ -319,59 +384,106 @@ export default function ToolsPage() {
             className={`btn ${activeTab === 'table' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => setActiveTab('table')}
           >
-            🧪 인터랙티브 주기율표
+            🧪 118개 원소 주기율표
           </button>
           <button
             className={`btn ${activeTab === 'calculator' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => setActiveTab('calculator')}
           >
-            📐 과학 통합 계산기 (5종)
+            📐 과학 통합 계산기 (9종)
           </button>
           <button
             className={`btn ${activeTab === 'simulation' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => setActiveTab('simulation')}
           >
-            🔮 물리/화학 시뮬레이터
+            🔮 물리/화학/생물 시뮬레이터 (4종)
           </button>
         </div>
 
-        {/* 탭 1: 인터랙티브 주기율표 */}
+        {/* 탭 1: 인터랙티브 주기율표 (1~118번) */}
         {activeTab === 'table' && (
           <div>
             <div className="card">
-              <h3>🧪 원소 주기율표 (1~36번)</h3>
+              <h3>🧪 원소 주기율표 (1~118번 전체)</h3>
               <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '1rem' }}>
-                원소를 클릭하면 상세한 전하, 원자량, 전자배치, 화학적 성질을 확인하실 수 있습니다.
+                검색창에 원소 이름이나 기호를 입력하거나 카테고리별로 필터링해 상세 정보를 확인하세요.
               </p>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(70px, 1fr))', gap: '0.5rem' }}>
-                {PERIODIC_ELEMENTS.map((elem) => (
+              {/* 검색 및 카테고리 필터 */}
+              <div style={{ display: 'grid', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                <input
+                  type="text"
+                  value={elementSearchQuery}
+                  onChange={(e) => setElementSearchQuery(e.target.value)}
+                  placeholder="원소명, 원소기호 또는 원자번호 검색 (예: 금, Au, 79)..."
+                  style={{ padding: '0.6rem 0.8rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1' }}
+                />
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                  {[
+                    { id: 'all', label: '전체 (118개)' },
+                    { id: '비금속', label: '비금속' },
+                    { id: '알칼리금속', label: '알칼리금속' },
+                    { id: '알칼리토금속', label: '알칼리토금속' },
+                    { id: '전이금속', label: '전이금속' },
+                    { id: '전이후금속', label: '전이후금속' },
+                    { id: '준금속', label: '준금속' },
+                    { id: '할로젠', label: '할로젠' },
+                    { id: '비활성기체', label: '비활성기체' },
+                    { id: '란타넘족', label: '란타넘족' },
+                    { id: '악티늄족', label: '악티늄족' },
+                  ].map((cat) => (
+                    <button
+                      key={cat.id}
+                      className={`btn ${elementCategoryFilter === cat.id ? 'btn-primary' : 'btn-secondary'}`}
+                      onClick={() => setElementCategoryFilter(cat.id)}
+                      style={{ padding: '0.3rem 0.65rem', fontSize: '0.8rem' }}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 118개 원소 그리드 */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))', gap: '0.4rem', maxHeight: '420px', overflowY: 'auto', padding: '0.25rem' }}>
+                {filteredElements.map((elem) => (
                   <button
                     key={elem.number}
                     onClick={() => setSelectedElement(elem)}
                     style={{
-                      padding: '0.5rem 0.25rem',
-                      borderRadius: '0.5rem',
-                      border: selectedElement?.number === elem.number ? '2px solid #4338ca' : '1px solid #cbd5e1',
+                      padding: '0.4rem 0.2rem',
+                      borderRadius: '0.4rem',
+                      border: selectedElement?.number === elem.number ? '2.5px solid #4338ca' : '1px solid #cbd5e1',
                       backgroundColor:
                         selectedElement?.number === elem.number
-                          ? '#e0e7ff'
+                          ? '#c7d2fd'
                           : elem.category === '비금속'
                           ? '#dcfce7'
                           : elem.category === '알칼리금속'
                           ? '#fee2e2'
                           : elem.category === '알칼리토금속'
                           ? '#ffedd5'
+                          : elem.category === '전이금속'
+                          ? '#e0f2fe'
+                          : elem.category === '전이후금속'
+                          ? '#f1f5f9'
+                          : elem.category === '준금속'
+                          ? '#fef9c3'
+                          : elem.category === '할로젠'
+                          ? '#fce7f3'
                           : elem.category === '비활성기체'
                           ? '#f3e8ff'
-                          : '#f1f5f9',
+                          : '#fae8ff',
                       cursor: 'pointer',
                       textAlign: 'center',
                     }}
                   >
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{elem.number}</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#1e293b' }}>{elem.symbol}</div>
-                    <div style={{ fontSize: '0.7rem', color: '#475569' }}>{elem.name}</div>
+                    <div style={{ fontSize: '0.65rem', color: '#64748b' }}>{elem.number}</div>
+                    <div style={{ fontSize: '1rem', fontWeight: 'bold', color: '#0f172a' }}>{elem.symbol}</div>
+                    <div style={{ fontSize: '0.65rem', color: '#334155', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                      {elem.name}
+                    </div>
                   </button>
                 ))}
               </div>
@@ -380,7 +492,7 @@ export default function ToolsPage() {
             {/* 원소 상세 정보 카드 */}
             {selectedElement && (
               <div className="card" style={{ backgroundColor: '#f8fafc', borderLeft: '5px solid #4338ca' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div>
                     <h2 style={{ color: '#1e1b4b', margin: 0 }}>
                       [{selectedElement.number}] {selectedElement.name} ({selectedElement.symbol})
@@ -416,24 +528,28 @@ export default function ToolsPage() {
           </div>
         )}
 
-        {/* 탭 2: 과학 통합 계산기 */}
+        {/* 탭 2: 과학 통합 계산기 (9종) */}
         {activeTab === 'calculator' && (
           <div>
             <div className="card">
-              <h3>📐 과학 공식 계산기</h3>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '1rem' }}>
+              <h3>📐 정밀 과학 공식 계산기 (9종)</h3>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '1rem' }}>
                 {[
-                  { id: 'force', label: '1. F=ma (힘과 가속도)' },
-                  { id: 'molarity', label: '2. M=mol/L (몰농도)' },
-                  { id: 'ohm', label: '3. V=IR (옴의 법칙)' },
-                  { id: 'energy', label: '4. KE/PE (운동·위치에너지)' },
-                  { id: 'ph', label: '5. pH (수소이온 지수)' },
+                  { id: 'force', label: '1. F=ma' },
+                  { id: 'molarity', label: '2. M=mol/L' },
+                  { id: 'ohm', label: '3. V=IR' },
+                  { id: 'energy', label: '4. KE/PE' },
+                  { id: 'ph', label: '5. pH' },
+                  { id: 'gas', label: '6. PV=nRT (이상기체)' },
+                  { id: 'snell', label: '7. 스넬 굴절법칙' },
+                  { id: 'halflife', label: '8. 반감기 N(t)' },
+                  { id: 'centraldogma', label: '9. DNA전사·번역' },
                 ].map((c) => (
                   <button
                     key={c.id}
                     className={`btn ${calcType === c.id ? 'btn-primary' : 'btn-secondary'}`}
                     onClick={() => setCalcType(c.id as any)}
-                    style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
+                    style={{ padding: '0.35rem 0.7rem', fontSize: '0.85rem' }}
                   >
                     {c.label}
                   </button>
@@ -574,32 +690,212 @@ export default function ToolsPage() {
                 })()}
               </div>
             )}
+
+            {/* 계산기 6: 이상기체 상태방정식 PV = nRT */}
+            {calcType === 'gas' && (
+              <div className="card">
+                <h4>🎈 P = nRT / V (이상기체 상태방정식 계산기)</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', marginTop: '1rem' }}>
+                  <div className="form-group">
+                    <label>몰수 n (mol)</label>
+                    <input type="number" step="0.1" value={gasN} onChange={(e) => setGasN(Number(e.target.value))} />
+                  </div>
+                  <div className="form-group">
+                    <label>절대온도 T (K)</label>
+                    <input type="number" step="0.1" value={gasT} onChange={(e) => setGasT(Number(e.target.value))} />
+                  </div>
+                  <div className="form-group">
+                    <label>부피 V (L)</label>
+                    <input type="number" step="0.1" value={gasV} onChange={(e) => setGasV(Number(e.target.value))} />
+                  </div>
+                </div>
+                {(() => {
+                  const R = 0.08206 // L·atm/(mol·K)
+                  const pressureAtm = gasV > 0 ? (gasN * R * gasT) / gasV : 0
+                  return (
+                    <div style={{ padding: '1rem', backgroundColor: '#e0f2fe', borderRadius: '0.5rem', textAlign: 'center' }}>
+                      <span style={{ fontSize: '0.9rem', color: '#0369a1' }}>계산된 기체 압력 (P) [R = 0.0821 L·atm/(mol·K)]</span>
+                      <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#0284c7' }}>
+                        {pressureAtm.toFixed(3)} atm (약 {(pressureAtm * 101.3).toFixed(1)} kPa)
+                      </div>
+                    </div>
+                  )
+                })()}
+              </div>
+            )}
+
+            {/* 계산기 7: 스넬의 굴절 법칙 n1 sin(θ1) = n2 sin(θ2) */}
+            {calcType === 'snell' && (
+              <div className="card">
+                <h4>🔍 n₁ sin(θ₁) = n₂ sin(θ₂) (스넬의 굴절 법칙 계산기)</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', marginTop: '1rem' }}>
+                  <div className="form-group">
+                    <label>매질 1 굴절률 n₁</label>
+                    <input type="number" step="0.01" value={n1} onChange={(e) => setN1(Number(e.target.value))} />
+                  </div>
+                  <div className="form-group">
+                    <label>매질 2 굴절률 n₂</label>
+                    <input type="number" step="0.01" value={n2} onChange={(e) => setN2(Number(e.target.value))} />
+                  </div>
+                  <div className="form-group">
+                    <label>입사각 θ₁ (°도)</label>
+                    <input type="number" value={theta1} onChange={(e) => setTheta1(Number(e.target.value))} />
+                  </div>
+                </div>
+                {(() => {
+                  const rad1 = (theta1 * Math.PI) / 180
+                  const sin2 = (n1 * Math.sin(rad1)) / n2
+                  let theta2Deg = 0
+                  let isTIR = false
+                  if (sin2 > 1) {
+                    isTIR = true
+                  } else {
+                    theta2Deg = (Math.asin(sin2) * 180) / Math.PI
+                  }
+                  return (
+                    <div style={{ padding: '1rem', backgroundColor: isTIR ? '#fee2e2' : '#f0fdf4', borderRadius: '0.5rem', textAlign: 'center' }}>
+                      <span style={{ fontSize: '0.9rem', color: isTIR ? '#991b1b' : '#047857' }}>계산된 굴절각 (θ₂)</span>
+                      <div style={{ fontSize: '2rem', fontWeight: 'bold', color: isTIR ? '#ef4444' : '#059669' }}>
+                        {isTIR ? '전반사 (Total Internal Reflection)' : `${theta2Deg.toFixed(2)}°`}
+                      </div>
+                    </div>
+                  )
+                })()}
+              </div>
+            )}
+
+            {/* 계산기 8: 방사성 동위원소 반감기 N(t) = N0 * (1/2)^(t / T_half) */}
+            {calcType === 'halflife' && (
+              <div className="card">
+                <h4>☢️ N(t) = N₀ × (½)^(t / T½) (방사성 반감기 계산기)</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem', marginTop: '1rem' }}>
+                  <div className="form-group">
+                    <label>초기 양 N₀</label>
+                    <input type="number" value={n0} onChange={(e) => setN0(Number(e.target.value))} />
+                  </div>
+                  <div className="form-group">
+                    <label>반감기 T½ (년/시간)</label>
+                    <input type="number" value={tHalf} onChange={(e) => setTHalf(Number(e.target.value))} />
+                  </div>
+                  <div className="form-group">
+                    <label>경과 시간 t</label>
+                    <input type="number" value={elapsedT} onChange={(e) => setElapsedT(Number(e.target.value))} />
+                  </div>
+                </div>
+                {(() => {
+                  const remaining = tHalf > 0 ? n0 * Math.pow(0.5, elapsedT / tHalf) : 0
+                  const ratioPct = n0 > 0 ? ((remaining / n0) * 100).toFixed(2) : '0'
+                  return (
+                    <div style={{ padding: '1rem', backgroundColor: '#fef3c7', borderRadius: '0.5rem', textAlign: 'center' }}>
+                      <span style={{ fontSize: '0.9rem', color: '#92400e' }}>남은 방사성 시료 양 N(t) 및 잔존율</span>
+                      <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#d97706' }}>
+                        {remaining.toFixed(2)} ({ratioPct}% 남음)
+                      </div>
+                    </div>
+                  )
+                })()}
+              </div>
+            )}
+
+            {/* 계산기 9: DNA전사·번역 생물학 도구 */}
+            {calcType === 'centraldogma' && (
+              <div className="card">
+                <h4>🧬 DNA → mRNA → 아미노산 전사·번역 분자생물학 도구</h4>
+                <div className="form-group" style={{ marginTop: '1rem' }}>
+                  <label>DNA 서열 입력 (A, T, G, C 조합)</label>
+                  <input
+                    type="text"
+                    value={dnaSeq}
+                    onChange={(e) => setDnaSeq(e.target.value.toUpperCase().replace(/[^ATGC]/g, ''))}
+                    placeholder="예: TACGTTCAACTG"
+                    style={{ fontFamily: 'monospace', letterSpacing: '2px' }}
+                  />
+                </div>
+
+                {(() => {
+                  const mrna = dnaSeq
+                    .split('')
+                    .map((b) => (b === 'A' ? 'U' : b === 'T' ? 'A' : b === 'G' ? 'C' : 'G'))
+                    .join('')
+
+                  const codonTable: Record<string, string> = {
+                    AUG: 'Met (개시)',
+                    UAA: '종결',
+                    UAG: '종결',
+                    UGA: '종결',
+                    UUU: 'Phe',
+                    UUC: 'Phe',
+                    UUA: 'Leu',
+                    UUG: 'Leu',
+                    CAA: 'Gln',
+                    CAG: 'Gln',
+                    AAC: 'Asn',
+                    AAG: 'Lys',
+                    GAC: 'Asp',
+                    GAG: 'Glu',
+                  }
+
+                  const codons: string[] = []
+                  for (let i = 0; i < mrna.length; i += 3) {
+                    if (i + 3 <= mrna.length) {
+                      codons.push(mrna.slice(i, i + 3))
+                    }
+                  }
+
+                  const aminos = codons.map((c) => codonTable[c] || '아미노산')
+
+                  return (
+                    <div style={{ display: 'grid', gap: '0.75rem', marginTop: '0.5rem' }}>
+                      <div style={{ padding: '0.75rem', background: '#f0f4ff', borderRadius: '0.5rem' }}>
+                        <span style={{ fontSize: '0.85rem', color: '#4338ca', fontWeight: 600 }}>1. 전사된 mRNA 서열:</span>
+                        <div style={{ fontFamily: 'monospace', fontSize: '1.2rem', fontWeight: 'bold', color: '#1d4ed8', marginTop: '0.2rem' }}>
+                          5'- {mrna} -3'
+                        </div>
+                      </div>
+
+                      <div style={{ padding: '0.75rem', background: '#f0fdf4', borderRadius: '0.5rem' }}>
+                        <span style={{ fontSize: '0.85rem', color: '#047857', fontWeight: 600 }}>2. 번역 코돈 및 아미노산 서열:</span>
+                        <div style={{ fontFamily: 'monospace', fontSize: '1.1rem', fontWeight: 'bold', color: '#059669', marginTop: '0.2rem' }}>
+                          {codons.join(' - ')} ➔ {aminos.join(' — ')}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })()}
+              </div>
+            )}
           </div>
         )}
 
-        {/* 탭 3: 시뮬레이터 & 물리/화학 모형 */}
+        {/* 탭 3: 시뮬레이터 & 물리/화학/생물 모형 (4종) */}
         {activeTab === 'simulation' && (
           <div>
             <div className="card">
-              <h3>🔮 인터랙티브 시뮬레이터 모형</h3>
-              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+              <h3>🔮 인터랙티브 시뮬레이터 모형 (4종)</h3>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '1rem' }}>
                 <button
                   className={`btn ${simType === 'projectile' ? 'btn-primary' : 'btn-secondary'}`}
                   onClick={() => setSimType('projectile')}
                 >
-                  🎯 1. 포물선 운동 시뮬레이터
+                  🎯 1. 포물선 운동
                 </button>
                 <button
                   className={`btn ${simType === 'atom' ? 'btn-primary' : 'btn-secondary'}`}
                   onClick={() => setSimType('atom')}
                 >
-                  ⚛️ 2. 원자 오비탈 껍질 모형
+                  ⚛️ 2. 원자 오비탈 껍질
                 </button>
                 <button
                   className={`btn ${simType === 'wave' ? 'btn-primary' : 'btn-secondary'}`}
                   onClick={() => setSimType('wave')}
                 >
-                  🌊 3. 파동 간섭 시뮬레이터
+                  🌊 3. 파동 간섭
+                </button>
+                <button
+                  className={`btn ${simType === 'pendulum' ? 'btn-primary' : 'btn-secondary'}`}
+                  onClick={() => setSimType('pendulum')}
+                >
+                  ⏱️ 4. 단진자 주기도
                 </button>
               </div>
             </div>
@@ -630,7 +926,7 @@ export default function ToolsPage() {
               <div className="card">
                 <h4>⚛️ 원자번호별 K/L/M 전자 껍질 모형 시뮬레이터</h4>
                 <div className="form-group" style={{ margin: '1rem 0' }}>
-                  <label>원자번호 Z (1~18번): {atomZ}번 ({PERIODIC_ELEMENTS.find((e) => e.number === atomZ)?.name})</label>
+                  <label>원자번호 Z (1~18번): {atomZ}번 ({ALL_ELEMENTS.find((e) => e.number === atomZ)?.name})</label>
                   <input type="range" min="1" max="18" value={atomZ} onChange={(e) => setAtomZ(Number(e.target.value))} />
                 </div>
 
@@ -657,6 +953,27 @@ export default function ToolsPage() {
 
                 <div style={{ textAlign: 'center', background: '#0284c7', padding: '0.5rem', borderRadius: '0.5rem' }}>
                   <canvas ref={waveCanvasRef} width={680} height={260} style={{ width: '100%', maxHeight: '260px' }} />
+                </div>
+              </div>
+            )}
+
+            {/* 4. 단진자 주기도 시뮬레이터 */}
+            {simType === 'pendulum' && (
+              <div className="card">
+                <h4>⏱️ 단진자(Simple Pendulum) 복원력 & 주기 시뮬레이터</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', margin: '1rem 0' }}>
+                  <div className="form-group">
+                    <label>줄 길이 L: {pendulumL} m</label>
+                    <input type="range" min="0.5" max="3.0" step="0.1" value={pendulumL} onChange={(e) => setPendulumL(Number(e.target.value))} />
+                  </div>
+                  <div className="form-group">
+                    <label>최대 흔들림 각도 θ_max: {pendulumMaxAngle}°</label>
+                    <input type="range" min="10" max="60" value={pendulumMaxAngle} onChange={(e) => setPendulumMaxAngle(Number(e.target.value))} />
+                  </div>
+                </div>
+
+                <div style={{ textAlign: 'center', background: '#f8fafc', padding: '0.5rem', borderRadius: '0.5rem' }}>
+                  <canvas ref={pendulumCanvasRef} width={680} height={260} style={{ width: '100%', maxHeight: '260px' }} />
                 </div>
               </div>
             )}
