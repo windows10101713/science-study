@@ -44,6 +44,24 @@ export interface LessonClass {
   createdAt: string
 }
 
+export interface UserPreferences {
+  grade: number
+  level: 'basic' | 'curriculum' | 'advanced' | 'expert' | 'research'
+  darkMode: boolean
+  nickname: string
+  dailyGoalMinutes: number
+  fontSize: 'normal' | 'large' | 'xlarge'
+  accentColor: 'default' | 'blue' | 'green' | 'orange'
+  reduceMotion: boolean
+  questionsPerQuiz: number
+  gradingStrictness: 'lenient' | 'strict'
+  immediateExplanation: boolean
+  showTimer: boolean
+  soundEffects: boolean
+  preferredSubject: string
+  preferredLevelCategory: string
+}
+
 interface LearningStore {
   // 학생 진도
   progress: StudentProgress[]
@@ -52,11 +70,7 @@ interface LearningStore {
   classes: LessonClass[]
 
   // 기본 설정
-  userPreferences: {
-    grade: number
-    level: 'basic' | 'curriculum' | 'university'
-    darkMode: boolean
-  }
+  userPreferences: UserPreferences
 
   // 액션
   addProgress: (p: StudentProgress) => void
@@ -69,12 +83,14 @@ interface LearningStore {
   getStudyStreak: () => number
   getTotalStudyTime: () => number
   getMistakesByDate: (days: number) => MistakeEntry[]
-  setUserPreference: (key: string, value: any) => void
+  setUserPreference: (key: keyof UserPreferences, value: any) => void
   getAverageScore: (conceptIds?: string[]) => number
   resetProgress: () => void
   addClass: (c: LessonClass) => void
   removeClass: (id: string) => void
   getClassProgress: (classId: string) => number
+  exportData: () => string
+  importData: (jsonStr: string) => boolean
 }
 
 export const useLearningStore = create<LearningStore>()(
@@ -88,6 +104,18 @@ export const useLearningStore = create<LearningStore>()(
         grade: 8,
         level: 'curriculum',
         darkMode: false,
+        nickname: '학습자',
+        dailyGoalMinutes: 15,
+        fontSize: 'normal',
+        accentColor: 'default',
+        reduceMotion: false,
+        questionsPerQuiz: 6,
+        gradingStrictness: 'lenient',
+        immediateExplanation: true,
+        showTimer: true,
+        soundEffects: true,
+        preferredSubject: 'physics',
+        preferredLevelCategory: 'middle',
       },
 
       addProgress: (p) =>
@@ -231,6 +259,43 @@ export const useLearningStore = create<LearningStore>()(
         if (!cls || cls.lessonIds.length === 0) return 0
         const completed = cls.lessonIds.filter((id) => state.progress.some((p) => p.conceptId === id)).length
         return Math.round((completed / cls.lessonIds.length) * 100)
+      },
+
+      exportData: () => {
+        const state = get()
+        const backup = {
+          version: '1.0',
+          exportedAt: new Date().toISOString(),
+          progress: state.progress,
+          sessions: state.sessions,
+          mistakes: state.mistakes,
+          classes: state.classes,
+          userPreferences: state.userPreferences,
+          customConcepts: JSON.parse(localStorage.getItem('customConcepts') || '[]'),
+        }
+        return JSON.stringify(backup, null, 2)
+      },
+
+      importData: (jsonStr) => {
+        try {
+          const parsed = JSON.parse(jsonStr)
+          if (!parsed || typeof parsed !== 'object') return false
+          set((state) => ({
+            progress: Array.isArray(parsed.progress) ? parsed.progress : state.progress,
+            sessions: Array.isArray(parsed.sessions) ? parsed.sessions : state.sessions,
+            mistakes: Array.isArray(parsed.mistakes) ? parsed.mistakes : state.mistakes,
+            classes: Array.isArray(parsed.classes) ? parsed.classes : state.classes,
+            userPreferences: parsed.userPreferences
+              ? { ...state.userPreferences, ...parsed.userPreferences }
+              : state.userPreferences,
+          }))
+          if (Array.isArray(parsed.customConcepts)) {
+            localStorage.setItem('customConcepts', JSON.stringify(parsed.customConcepts))
+          }
+          return true
+        } catch {
+          return false
+        }
       },
     }),
     {

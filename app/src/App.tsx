@@ -21,9 +21,16 @@ import { useLearningStore } from './lib/store'
 function App() {
   const { userPreferences } = useLearningStore()
 
+  const themeClasses = [
+    userPreferences.darkMode ? 'dark-mode' : '',
+    userPreferences.fontSize ? `font-${userPreferences.fontSize}` : '',
+    userPreferences.accentColor ? `accent-${userPreferences.accentColor}` : '',
+    userPreferences.reduceMotion ? 'reduce-motion' : '',
+  ].filter(Boolean).join(' ')
+
   return (
     <Router>
-      <div className={userPreferences.darkMode ? 'dark-mode' : ''}>
+      <div className={themeClasses}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />

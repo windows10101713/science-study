@@ -12,7 +12,7 @@ export default function QuizPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const classId = searchParams.get('classId')
-  const { updateProgress } = useLearningStore()
+  const { updateProgress, userPreferences } = useLearningStore()
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [submitted, setSubmitted] = useState(false)
@@ -26,13 +26,14 @@ export default function QuizPage() {
     return allLessons.find(l => l.id === lessonId)
   }, [lessonId])
 
-  // 이 레슨의 문제들 가져오기 (최대 6문제)
+  // 이 레슨의 문제들 가져오기
   const questions = useMemo(() => {
     if (!lesson || !lesson.questions || lesson.questions.length === 0) {
       return []
     }
-    return allQuestions.filter(q => lesson.questions.includes(q.id)).slice(0, 6)
-  }, [lesson])
+    const count = userPreferences?.questionsPerQuiz || 6
+    return allQuestions.filter(q => lesson.questions.includes(q.id)).slice(0, count)
+  }, [lesson, userPreferences?.questionsPerQuiz])
 
   // 선택지 섞기 (multiple_choice)
   const currentQuestion = questions[currentQuestionIdx]
@@ -73,14 +74,17 @@ export default function QuizPage() {
   const handleSubmit = () => {
     if (!answered) return
     setSubmitted(true)
-    setShowExplanation(true)
+    if (userPreferences?.immediateExplanation !== false) {
+      setShowExplanation(true)
+    }
   }
 
   const handleNext = () => {
     if (isLastQuestion) {
+      const mode = userPreferences?.gradingStrictness || 'lenient'
       // 결과 계산
       const correctCount = questions.reduce((count, q) => {
-        return isAnswerCorrect(q, answers[q.id]) ? count + 1 : count
+        return isAnswerCorrect(q, answers[q.id], mode) ? count + 1 : count
       }, 0)
       const score = Math.round((correctCount / questions.length) * 100)
       const timeSpent = Math.round((Date.now() - startTime) / 1000)
@@ -102,7 +106,7 @@ export default function QuizPage() {
   }
 
   const progress = ((currentQuestionIdx + 1) / questions.length) * 100
-  const isCorrect = isAnswerCorrect(currentQuestion, answers[currentQuestion.id])
+  const isCorrect = isAnswerCorrect(currentQuestion, answers[currentQuestion.id], userPreferences?.gradingStrictness || 'lenient')
 
   return (
     <div className="app">

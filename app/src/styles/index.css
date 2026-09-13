@@ -547,3 +547,59 @@ body {
 .dark-mode .skill-node.available {
   background: #23253d;
 }
+
+/* 글자 크기 서식 */
+.font-large {
+  font-size: 1.08rem;
+}
+.font-xlarge {
+  font-size: 1.16rem;
+}
+
+/* 액센트 컬러 */
+.accent-blue .header {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+}
+.accent-blue .btn-primary {
+  background-color: #2563eb !important;
+}
+.accent-blue .btn-primary:hover {
+  background-color: #1d4ed8 !important;
+}
+.accent-blue .sidebar {
+  background: linear-gradient(180deg, #2563eb 0%, #1e40af 100%) !important;
+}
+
+.accent-green .header {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+}
+.accent-green .btn-primary {
+  background-color: #059669 !important;
+}
+.accent-green .btn-primary:hover {
+  background-color: #047857 !important;
+}
+.accent-green .sidebar {
+  background: linear-gradient(180deg, #059669 0%, #065f46 100%) !important;
+}
+
+.accent-orange .header {
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%) !important;
+}
+.accent-orange .btn-primary {
+  background-color: #ea580c !important;
+}
+.accent-orange .btn-primary:hover {
+  background-color: #c2410c !important;
+}
+.accent-orange .sidebar {
+  background: linear-gradient(180deg, #ea580c 0%, #9a3412 100%) !important;
+}
+
+/* 모션 감축 */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation: none !important;
+  transition: none !important;
+}

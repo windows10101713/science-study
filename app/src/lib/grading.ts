@@ -18,8 +18,12 @@ function isNumericMatch(user: string, answer: string): boolean {
   return Math.abs(userNum - answerNum) / Math.abs(answerNum) <= 0.02
 }
 
-// 객관식은 정확히, 서술형·계산형은 핵심 키워드 포함 여부로 관대하게 채점한다
-export function isAnswerCorrect(question: Question, userAnswer: string | undefined): boolean {
+// 객관식은 정확히, 서술형·계산형은 관대함/엄격함 모드에 따라 채점한다
+export function isAnswerCorrect(
+  question: Question,
+  userAnswer: string | undefined,
+  mode: 'lenient' | 'strict' = 'lenient'
+): boolean {
   if (!userAnswer || !userAnswer.trim()) return false
 
   if (question.type === 'multiple_choice') {
@@ -33,6 +37,7 @@ export function isAnswerCorrect(question: Question, userAnswer: string | undefin
     const normalizedAnswer = normalize(answer)
     if (!normalizedAnswer) return false
     if (normalizedUser === normalizedAnswer) return true
+    if (mode === 'strict') return false
     if (question.type === 'calculation' && isNumericMatch(userAnswer, answer)) return true
     // 서술형: 정답 핵심어를 포함하거나(사용자가 더 길게 답한 경우), 사용자의 답이 정답에 포함되는 경우(짧게 요약한 경우) 모두 인정
     return normalizedUser.includes(normalizedAnswer) || normalizedAnswer.includes(normalizedUser)
