@@ -24,6 +24,12 @@ export default function HomePage() {
   const goalMinutes = userPreferences.dailyGoalMinutes || 15
   const goalProgressPct = Math.min(100, Math.round((totalMinutes / goalMinutes) * 100))
   const avgScore = getAverageScore().toFixed(0)
+  const completedCount = progress.length
+  const totalLessonCount = allLessons.length
+  const completionPct = totalLessonCount > 0 ? Math.round((completedCount / totalLessonCount) * 100) : 0
+  const totalChapterCount = LIBRARY_BOOKS.reduce((sum, book) => sum + book.chapters.length, 0)
+  const nextLessonIndex = completedCount % allLessons.length
+  const dailyChallenge = allLessons[nextLessonIndex]
 
   // 오늘의 추천 도서 (선호 과목 중심 또는 무작위)
   const recommendedBook =
@@ -88,6 +94,33 @@ export default function HomePage() {
               <h3>심화 도서관</h3>
               <p className="stat-number">{LIBRARY_BOOKS.length}</p>
               <p className="stat-label">권 수록</p>
+            </div>
+          </div>
+
+          <div className="stat-card" onClick={() => navigate('/lessons')} style={{ cursor: 'pointer' }}>
+            <div className="stat-icon">🧭</div>
+            <div className="stat-content">
+              <h3>전체 커리큘럼</h3>
+              <p className="stat-number">{completionPct}%</p>
+              <p className="stat-label">{completedCount}/{totalLessonCount}개 완료</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 빠른 탐구 메뉴 */}
+        <div className="card" style={{ marginTop: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <div>
+              <h3 style={{ color: '#1e1b4b', margin: 0 }}>⚡ 바로 시작하기</h3>
+              <p style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                학습, 실험, 복습 중 지금 필요한 활동을 선택하세요.
+              </p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '0.5rem', width: 'min(100%, 620px)' }}>
+              <button className="btn btn-primary" onClick={() => navigate('/lessons')} style={{ padding: '0.65rem 0.4rem', fontSize: '0.82rem' }}>📚 레슨 찾기</button>
+              <button className="btn btn-secondary" onClick={() => navigate('/tools')} style={{ padding: '0.65rem 0.4rem', fontSize: '0.82rem' }}>🧪 실험실</button>
+              <button className="btn btn-secondary" onClick={() => navigate('/review')} style={{ padding: '0.65rem 0.4rem', fontSize: '0.82rem' }}>🔁 복습하기</button>
+              <button className="btn btn-secondary" onClick={() => navigate('/dictionary')} style={{ padding: '0.65rem 0.4rem', fontSize: '0.82rem' }}>📖 사전 열기</button>
             </div>
           </div>
         </div>
@@ -187,6 +220,41 @@ export default function HomePage() {
             >
               🔬 개념 탐구하기 →
             </button>
+          </div>
+        </div>
+
+        {/* 오늘의 도전과 전체 자산 현황 */}
+        <div className="row" style={{ marginTop: '1rem' }}>
+          <div className="card" style={{ background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)', border: '1px solid #a7f3d0' }}>
+            <div style={{ fontSize: '0.8rem', color: '#047857', fontWeight: 700 }}>🏁 오늘의 도전 레슨</div>
+            <h4 style={{ color: '#065f46', marginTop: '0.4rem' }}>{dailyChallenge.title}</h4>
+            <p style={{ fontSize: '0.85rem', color: '#065f46', lineHeight: '1.55', marginTop: '0.4rem' }}>
+              {dailyChallenge.summary}
+            </p>
+            <button className="btn btn-primary" onClick={() => navigate(`/concept/${dailyChallenge.id}`)} style={{ marginTop: '1rem', backgroundColor: '#047857', width: '100%' }}>
+              도전 시작하기 →
+            </button>
+          </div>
+
+          <div className="card">
+            <div style={{ fontSize: '0.8rem', color: '#4338ca', fontWeight: 700 }}>🌐 Science Study 전체 규모</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginTop: '1rem', textAlign: 'center' }}>
+              <div>
+                <strong style={{ display: 'block', fontSize: '1.5rem', color: '#4338ca' }}>{totalLessonCount}</strong>
+                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>레슨</span>
+              </div>
+              <div>
+                <strong style={{ display: 'block', fontSize: '1.5rem', color: '#059669' }}>{LIBRARY_BOOKS.length}</strong>
+                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>도서</span>
+              </div>
+              <div>
+                <strong style={{ display: 'block', fontSize: '1.5rem', color: '#d97706' }}>{totalChapterCount}</strong>
+                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>챕터</span>
+              </div>
+            </div>
+            <p style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: '1.5', marginTop: '1rem' }}>
+              개념을 읽고, 문제를 풀고, 도구로 직접 확인하는 순서로 학습하면 기억이 오래 남습니다.
+            </p>
           </div>
         </div>
       </main>

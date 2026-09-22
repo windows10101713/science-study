@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { saveLearningRecord } from './db'
 
 export interface StudentProgress {
   conceptId: string
@@ -125,6 +126,7 @@ export const useLearningStore = create<LearningStore>()(
 
       updateProgress: (conceptId, score, timeSpent) =>
         set((state) => {
+          saveLearningRecord({ id: `progress-${conceptId}`, type: 'progress', conceptId, score, timeSpent })
           const existing = state.progress.find((p) => p.conceptId === conceptId)
           if (existing) {
             return {
@@ -157,20 +159,26 @@ export const useLearningStore = create<LearningStore>()(
           answers: {},
         }
         set((state) => ({ sessions: [...state.sessions, session] }))
+        saveLearningRecord({ id: session.id, type: 'session-start', conceptId, startTime: session.startTime })
         return session
       },
 
       endSession: (sessionId, answers, score) =>
-        set((state) => ({
-          sessions: state.sessions.map((s) =>
-            s.id === sessionId ? { ...s, endTime: new Date().toISOString(), answers, score } : s
-          ),
-        })),
+        set((state) => {
+          const endedAt = new Date().toISOString()
+          saveLearningRecord({ id: sessionId, type: 'session-end', answers, score, endTime: endedAt })
+          return {
+            sessions: state.sessions.map((s) =>
+              s.id === sessionId ? { ...s, endTime: endedAt, answers, score } : s
+            ),
+          }
+        }),
 
       addMistake: (mistake) =>
-        set((state) => ({
-          mistakes: [...state.mistakes, mistake],
-        })),
+        set((state) => {
+          saveLearningRecord({ ...mistake, type: 'mistake' })
+          return { mistakes: [...state.mistakes, mistake] }
+        }),
 
       updateMistake: (id, reviewed) =>
         set((state) => ({

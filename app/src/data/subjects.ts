@@ -13,6 +13,12 @@ export const SUBJECTS: SubjectMeta[] = [
   { id: 'earthscience', label: '지구과학', icon: '🌍' },
   { id: 'astronomy', label: '천문학', icon: '🔭' },
   { id: 'medicine', label: '의학', icon: '🩺' },
+  { id: 'engineering', label: '공학', icon: '⚙️' },
+  { id: 'programming', label: '프로그래밍', icon: '💻' },
+  { id: 'computer', label: '컴퓨터과학', icon: '🖥️' },
+  { id: 'networking', label: '네트워크·Wi-Fi', icon: '📡' },
+  { id: 'electronics', label: '전자공학', icon: '🔌' },
+  { id: 'datascience', label: '데이터과학', icon: '📊' },
 ]
 
 // 도서관 전용: 특정 분야에 속하지 않는 일반 과학 도서

@@ -690,3 +690,14 @@ graph TD
 **마지막 업데이트**: 2026년 9월 5일  
 **현재 상태**: MVP 기초 설계 완료, 개발 준비 단계  
 **다음 단계**: 기술 스택 검증 및 콘텐츠 개념 10개 정의
+
+
+배포 완료
+저렴한 구성으로 배포했습니다.
+
+Azure Static Web Apps Free
+리소스 그룹 1개 + Static Web App 1개
+예상 비용: $0/월 범위
+Bicep 배포 성공
+HTTPS 상태 200
+앱 주소: https://icy-stone-055045600.3.azurestaticapps.net

@@ -378,6 +378,23 @@ export default function ToolsPage() {
       </header>
 
       <main className="container">
+        <div className="card" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%)', border: '1px solid #c7d2fe' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 280px' }}>
+              <span style={{ color: '#4338ca', fontSize: '0.78rem', fontWeight: 800 }}>LAB NOTE · 학습 사용법</span>
+              <h3 style={{ color: '#1e1b4b', marginTop: '0.25rem' }}>📚 개념을 도구로 검증하는 4단계</h3>
+              <p style={{ marginTop: '0.45rem', lineHeight: '1.6' }}>
+                ① 레슨에서 정의를 읽고 ② 사전에서 용어를 확인한 뒤 ③ 아래 계산기에서 수치를 넣고 ④ 시뮬레이터에서 변화 양상을 관찰하세요.
+              </p>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(90px, 1fr))', gap: '0.5rem', flex: '1 1 320px' }}>
+              <div style={{ padding: '0.7rem', background: 'white', borderRadius: '0.5rem', textAlign: 'center' }}><strong style={{ color: '#4338ca' }}>g</strong><br /><small>9.8 m/s²</small><br /><small>지구 중력</small></div>
+              <div style={{ padding: '0.7rem', background: 'white', borderRadius: '0.5rem', textAlign: 'center' }}><strong style={{ color: '#047857' }}>R</strong><br /><small>8.314 J/mol·K</small><br /><small>기체상수</small></div>
+              <div style={{ padding: '0.7rem', background: 'white', borderRadius: '0.5rem', textAlign: 'center' }}><strong style={{ color: '#c2410c' }}>Nₐ</strong><br /><small>6.022×10²³</small><br /><small>아보가드로수</small></div>
+            </div>
+          </div>
+        </div>
+
         {/* 도구 분류 탭 */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginBottom: '1.5rem' }}>
           <button
@@ -445,13 +462,21 @@ export default function ToolsPage() {
                 </div>
               </div>
 
-              {/* 118개 원소 그리드 */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))', gap: '0.4rem', maxHeight: '420px', overflowY: 'auto', padding: '0.25rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', marginBottom: '0.6rem', color: '#64748b', fontSize: '0.78rem' }}>
+                <span>족 1 ─────────────────────────────── 족 18</span>
+                <span>주기 1~7 · 아래 두 줄은 f-블록</span>
+              </div>
+
+              {/* 118개 원소의 실제 족·주기 좌표 */}
+              <div style={{ overflowX: 'auto', padding: '0.25rem 0.25rem 0.65rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(18, minmax(54px, 1fr))', gridTemplateRows: 'repeat(9, minmax(76px, auto))', gap: '0.35rem', minWidth: '1040px' }}>
                 {filteredElements.map((elem) => (
                   <button
                     key={elem.number}
                     onClick={() => setSelectedElement(elem)}
                     style={{
+                      gridColumn: elem.category === '란타넘족' ? elem.number - 53 : elem.category === '악티늄족' ? elem.number - 85 : elem.group,
+                      gridRow: elem.category === '란타넘족' ? 8 : elem.category === '악티늄족' ? 9 : elem.period,
                       padding: '0.4rem 0.2rem',
                       borderRadius: '0.4rem',
                       border: selectedElement?.number === elem.number ? '2.5px solid #4338ca' : '1px solid #cbd5e1',
@@ -486,6 +511,7 @@ export default function ToolsPage() {
                     </div>
                   </button>
                 ))}
+                </div>
               </div>
             </div>
 

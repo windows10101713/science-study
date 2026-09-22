@@ -1,7 +1,14 @@
 // 도서관: 주제별 심화 학습을 위한 도서 및 챕터 콘텐츠
+import { expandedLibraryBooks } from './libraryExpansion'
+import { massiveLibraryBooks } from './massiveLibrary'
 export interface BookChapter {
   title: string
   content: string
+  learningGoals?: string[]
+  keyTerms?: string[]
+  formulas?: string[]
+  workedExample?: string
+  practiceQuestions?: string[]
 }
 
 export interface Book {
@@ -535,7 +542,9 @@ export const LIBRARY_BOOKS: Book[] = [
         content: '과학 지식은 진공 속에서 만들어지지 않으며, 연구비 지원, 윤리적 기준, 사회적 가치 등 다양한 사회적 맥락 속에서 생산됩니다. 과학자들은 연구 결과를 동료 평가(peer review)를 거쳐 학술지에 발표함으로써 다른 전문가들의 검증을 받습니다.\n\n한편 과학 지식이 정책 결정에 활용될 때는 불확실성을 정직하게 전달하고, 과학적 합의와 개별 연구 결과를 구분하는 것이 중요합니다. 기후변화나 백신처럼 사회적으로 중요한 주제일수록 과학적 근거에 기반한 신중한 소통이 필요합니다.'
       }
     ]
-  }
+  },
+  ...expandedLibraryBooks,
+  ...massiveLibraryBooks,
 ]
 
 export function getBookById(id: string): Book | undefined {

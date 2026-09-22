@@ -1,4 +1,7 @@
 // 모든 문제 데이터
+import { expandedQuestions } from './expansion'
+import { generatedQuestions } from './catalogExpansion'
+
 export interface Question {
   id: string
   type: 'multiple_choice' | 'short_answer' | 'calculation'
@@ -11,6 +14,8 @@ export interface Question {
 }
 
 export const allQuestions: Question[] = [
+  ...expandedQuestions,
+  ...generatedQuestions,
   // 초등 - 자석 (elem-sci-01)
   {
     id: 'elem-sci-01-q01',
@@ -6684,6 +6689,6 @@ export function getQuestionHint(q: Question): string {
 }
 
 export function getQuestionsByLessonId(lessonId: string): Question[] {
-  const prefix = lessonId.split('-').slice(0, -1).join('-');
-  return allQuestions.filter(q => q.id.startsWith(prefix));
+  const prefix = `${lessonId}-q`
+  return allQuestions.filter(q => q.id.startsWith(prefix))
 }

@@ -58,6 +58,12 @@ class RelationalDatabase {
     if (!this.tables.terms) {
       this.tables.terms = []
     }
+    if (!this.tables.auth_users) {
+      this.tables.auth_users = []
+    }
+    if (!this.tables.learning_records) {
+      this.tables.learning_records = []
+    }
     this.saveToStorage()
   }
 
@@ -250,4 +256,27 @@ export const db = new RelationalDatabase()
 
 export function executeQuery<T = any>(sql: string, params: any[] = []): QueryResult<T> {
   return db.executeSql<T>(sql, params)
+}
+
+export function upsertSqlUser(username: string, passwordHash: string) {
+  return executeQuery(
+    'INSERT INTO auth_users (id, username, password_hash, created_at) VALUES (?, ?, ?, ?)',
+    [`user-${username}`, username, passwordHash, new Date().toISOString()]
+  )
+}
+
+export function findSqlUser(username: string): { username: string; password_hash: string } | undefined {
+  return executeQuery<{ username: string; password_hash: string }>(
+    `SELECT username, password_hash FROM auth_users WHERE username = '${username.replace(/'/g, "''")}' LIMIT 1`
+  ).rows[0]
+}
+
+export function saveLearningRecord(record: Record<string, unknown>) {
+  const id = String(record.id || `${record.type || 'record'}-${Date.now()}`)
+  return executeQuery('INSERT INTO learning_records (id, type, payload, created_at) VALUES (?, ?, ?, ?)', [
+    id,
+    String(record.type || 'learning'),
+    JSON.stringify(record),
+    new Date().toISOString(),
+  ])
 }

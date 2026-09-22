@@ -20,6 +20,133 @@ body {
   flex-direction: column;
 }
 
+.page-controls {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.page-control-button,
+.help-close-button {
+  width: 2.6rem;
+  height: 2.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(79, 70, 229, 0.2);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.94);
+  color: #4338ca;
+  box-shadow: 0 4px 14px rgba(30, 41, 59, 0.16);
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.page-control-button:hover,
+.help-close-button:hover {
+  transform: translateY(-2px);
+  background: #eef2ff;
+  box-shadow: 0 6px 18px rgba(30, 41, 59, 0.22);
+}
+
+.page-help-button {
+  margin-top: 0.35rem;
+  background: #4338ca;
+  color: white;
+  border-color: #4338ca;
+}
+
+.page-help-button:hover {
+  background: #3730a3;
+}
+
+.help-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.52);
+}
+
+.help-modal {
+  width: min(100%, 32rem);
+  max-height: min(80vh, 38rem);
+  overflow-y: auto;
+  background: white;
+  border-radius: 0.9rem;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.28);
+  padding: 1.35rem;
+}
+
+.help-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.help-eyebrow {
+  color: #6366f1;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.help-modal h2 {
+  margin-top: 0.2rem;
+  color: #1e1b4b;
+}
+
+.help-close-button {
+  flex: 0 0 auto;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: none;
+  box-shadow: none;
+  font-size: 1.5rem;
+}
+
+.help-modal-content {
+  display: grid;
+  gap: 0.7rem;
+  padding-top: 1rem;
+}
+
+.help-item {
+  padding: 0.85rem;
+  border-radius: 0.6rem;
+  background: #f8fafc;
+}
+
+.help-item strong {
+  color: #334155;
+}
+
+.help-item p {
+  margin-top: 0.25rem;
+  color: #64748b;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.help-shortcut {
+  margin-top: 1rem;
+  color: #94a3b8;
+  font-size: 0.76rem;
+  text-align: center;
+}
+
 /* 공통 스타일 */
 .container {
   max-width: 800px;
@@ -167,6 +294,16 @@ body {
   
   .header h1 {
     font-size: 1.5rem;
+  }
+
+  .page-controls {
+    right: 0.75rem;
+    bottom: 0.75rem;
+  }
+
+  .page-control-button {
+    width: 2.35rem;
+    height: 2.35rem;
   }
 }
 

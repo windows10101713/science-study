@@ -1,4 +1,5 @@
 // 과목별 핵심 용어 사전 데이터
+import { expandedScienceTerms } from './termsExpansion'
 export interface ScienceTerm {
   id: string
   subject: string // physics, chemistry, math, biology, earthscience, astronomy, medicine, general
@@ -323,7 +324,8 @@ export const SCIENCE_TERMS: ScienceTerm[] = [
     definition: '개인의 유전체 정보, 환경, 생활습관을 종합 분석하여 최적의 맞춤 치료를 제공하는 의학.',
     detailedExplanation: '단일 표준 치료에서 벗어나, 환자의 유전자 변이(바이오마커)를 검사하여 표적항암제 등 가장 효과적인 약물과 용량을 선별하는 현대 의학 접근법입니다.',
     formulaOrExample: '예: HER2 양성 유방암 표적치료제 트라스투주맙 처방'
-  }
+  },
+  ...expandedScienceTerms,
 ]
 
 export function getTermsBySubject(subjectId: string): ScienceTerm[] {

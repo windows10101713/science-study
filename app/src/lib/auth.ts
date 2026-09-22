@@ -1,4 +1,5 @@
-// 클라이언트 전용 간단 인증 (백엔드 없이 localStorage 기반 데모용)
+// 브라우저 SQL DB를 주 저장소로 사용하고 localStorage는 현재 세션 표시만 보관합니다.
+import { findSqlUser, upsertSqlUser, executeQuery } from './db'
 interface StoredUser {
   username: string
   passwordHash: string
@@ -36,10 +37,11 @@ export async function signUp(username: string, password: string): Promise<{ ok: 
     return { ok: false, error: '비밀번호는 4자 이상이어야 합니다' }
   }
   const users = getUsers()
-  if (users.some((u) => u.username === trimmed)) {
+  if (users.some((u) => u.username === trimmed) || findSqlUser(trimmed)) {
     return { ok: false, error: '이미 존재하는 아이디입니다' }
   }
   const passwordHash = await hashPassword(password)
+  upsertSqlUser(trimmed, passwordHash)
   saveUsers([...users, { username: trimmed, passwordHash }])
   localStorage.setItem(CURRENT_USER_KEY, trimmed)
   return { ok: true }
@@ -48,7 +50,9 @@ export async function signUp(username: string, password: string): Promise<{ ok: 
 export async function login(username: string, password: string): Promise<{ ok: boolean; error?: string }> {
   const trimmed = username.trim()
   const users = getUsers()
-  const user = users.find((u) => u.username === trimmed)
+  const localUser = users.find((u) => u.username === trimmed)
+  const sqlUser = findSqlUser(trimmed)
+  const user = localUser || (sqlUser ? { username: sqlUser.username, passwordHash: sqlUser.password_hash } : undefined)
   if (!user) {
     return { ok: false, error: '존재하지 않는 아이디입니다' }
   }
@@ -72,6 +76,7 @@ export function deleteAccount(): boolean {
   const current = getCurrentUser()
   if (!current) return false
   const users = getUsers().filter((u) => u.username !== current)
+  executeQuery(`DELETE FROM auth_users WHERE username = '${current.replace(/'/g, "''")}'`)
   saveUsers(users)
   logout()
   return true

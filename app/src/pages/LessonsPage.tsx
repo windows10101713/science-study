@@ -12,7 +12,7 @@ export default function LessonsPage() {
   const [selectedLevel, setSelectedLevel] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
 
-  // 전체 105개 레슨 필터링
+  // 전체 레슨 필터링
   const filteredLessons = useMemo(() => {
     return allLessons.filter((lesson) => {
       if (selectedSubject !== 'all' && lesson.subject !== selectedSubject) return false
@@ -88,7 +88,7 @@ export default function LessonsPage() {
       <header className="header">
         <div className="container">
           <h1>📚 전체 커리큘럼 카탈로그</h1>
-          <p>모든 분야와 단계의 105개 레슨을 탐색하고, 원하는 커리큘럼 트랙을 학습에 추가하세요</p>
+          <p>모든 분야와 단계의 {allLessons.length}개 레슨을 탐색하고, 원하는 커리큘럼 트랙을 학습에 추가하세요</p>
         </div>
       </header>
 
