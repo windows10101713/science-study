@@ -1,6 +1,5 @@
 // 도서관: 주제별 심화 학습을 위한 도서 및 챕터 콘텐츠
 import { expandedLibraryBooks } from './libraryExpansion'
-import { massiveLibraryBooks } from './massiveLibrary'
 export interface BookChapter {
   title: string
   content: string
@@ -544,7 +543,6 @@ export const LIBRARY_BOOKS: Book[] = [
     ]
   },
   ...expandedLibraryBooks,
-  ...massiveLibraryBooks,
 ]
 
 export function getBookById(id: string): Book | undefined {
