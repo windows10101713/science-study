@@ -1,5 +1,6 @@
 import type { Concept } from '../types'
 import { expandedLessons } from './expansion'
+import { curatedLessons } from './curatedLessons'
 
 // 초등 과학 레슨 (4-6학년)
 export const elementaryLessons: Concept[] = [
@@ -4083,5 +4084,6 @@ export const allLessons: Concept[] = [
   ...highSchoolLessons,
   ...masterLessons,
   ...phdLessons,
-  ...expandedLessons
+  ...expandedLessons,
+  ...curatedLessons
 ];

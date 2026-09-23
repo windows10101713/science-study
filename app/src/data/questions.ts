@@ -1,5 +1,6 @@
 // 모든 문제 데이터
 import { expandedQuestions } from './expansion'
+import { curatedQuestions } from './curatedLessons'
 
 export interface Question {
   id: string
@@ -14,6 +15,7 @@ export interface Question {
 
 export const allQuestions: Question[] = [
   ...expandedQuestions,
+  ...curatedQuestions,
   // 초등 - 자석 (elem-sci-01)
   {
     id: 'elem-sci-01-q01',
