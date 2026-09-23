@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { to: '/dictionary', label: '사전', icon: '🔤', end: false },
   { to: '/log', label: '로그', icon: '📝', end: false },
   { to: '/settings', label: '설정', icon: '⚙️', end: false },
+  { to: '/ai-study', label: 'AI 학습', icon: '🤖', end: false },
 ]
 
 export default function Sidebar() {

@@ -46,6 +46,10 @@ export default function PageControls() {
             </div>
             <div className="help-modal-content">
               <div className="help-item">
+                <strong>🤖 AI 학습</strong>
+                <p>수준 진단 결과를 바탕으로 고정된 문제 세트와 맞춤형 책을 생성합니다.</p>
+              </div>
+              <div className="help-item">
                 <strong>📚 레슨</strong>
                 <p>분야와 수준을 고른 뒤 레슨을 열고 개념 학습과 문제 풀이를 진행하세요.</p>
               </div>

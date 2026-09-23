@@ -701,3 +701,80 @@ Azure Static Web Apps Free
 Bicep 배포 성공
 HTTPS 상태 200
 앱 주소: https://icy-stone-055045600.3.azurestaticapps.net
+
+---
+
+## 현재 구현 상태: AI 개인화 학습
+
+기존 정적 콘텐츠만으로 모든 레슨을 수작업 작성하는 대신, 사용자의 진단 결과를 바탕으로 Azure OpenAI가 개인화 콘텐츠를 생성하도록 확장했다.
+
+### AI 학습 흐름
+
+```text
+수준 설문 + 진단 문제
+   ↓
+AI 수준 판정 artifact 저장
+   ↓
+과목·주제·수준 선택
+   ↓
+AI 문제 세트 또는 AI 교재 생성
+   ↓
+Cosmos DB에 immutable artifact 저장
+   ↓
+같은 입력이면 기존 결과 재사용
+```
+
+### 생성 기능
+
+- AI 수준 진단: 설문과 진단 답안을 분석해 `basic`, `curriculum`, `advanced`, `expert`, `research` 수준과 강점·취약점·추천 분야를 생성한다.
+- AI 문제 세트: 객관식, 단답형, 계산형 문제와 정답, 해설, 힌트, 난이도를 구조화해 생성한다.
+- AI 책 작성실: 페이지를 나누고 본문, 수식, 코드, 참고 링크, 연습문제를 구조화해 생성한다.
+- 프로그래밍 주제는 Python, C, Java, JavaScript 등의 코드 블록을 포함할 수 있다.
+- 생성 결과는 요청 입력의 SHA-256 기반 artifact ID를 사용하므로 같은 입력으로 다시 요청해도 기존 결과를 덮어쓰지 않는다.
+- 생성 결과에는 모델명, 생성 시각, 입력, schema version을 기록한다.
+
+### AI 설정
+
+설정 화면에서 다음 항목을 조절할 수 있다.
+
+- AI 개인 학습실 사용 여부
+- AI 문제 수
+- AI 책 페이지 수
+- 수식 포함 여부
+- 프로그래밍 코드 포함 여부
+- 참고 링크 포함 여부
+
+API 키와 모델 배포명은 프론트엔드에 넣지 않고 Azure Functions 환경 변수로만 관리한다.
+
+## 현재 Azure 공유 데이터 구조
+
+```text
+Static Web Apps
+   ↓
+Azure Functions Flex Consumption
+   ↓
+Azure Cosmos DB Serverless
+```
+
+- Function App: `func-science-study-ee47`
+- Cosmos DB: `cosmos-science-study-ee47`
+- Database: `science_study`
+- Container: `records`
+- Partition key: `/pk`
+- AI 모델: 기존 Azure OpenAI `gpt-4.1-mini-gs` 배포 재사용
+
+서버에 저장되는 주요 데이터 유형:
+
+- `user`
+- `session`
+- `learning-record`
+- `ai-artifact`
+
+기존 `127.0.0.1:3000` 브라우저 SQL 데이터는 로그인 시 서버에 계정이 없으면 비밀번호를 로컬에서 검증한 뒤 Azure Cosmos DB로 마이그레이션한다.
+
+## 주의사항
+
+- AI 생성은 Azure OpenAI 사용량에 따라 비용이 발생한다.
+- 생성 결과는 자동으로 사실성을 보장하지 않으므로 교육 콘텐츠 검수와 출처 확인이 필요하다.
+- 서버 AI 설정이 없거나 네트워크가 끊기면 기존 정적 레슨·문제·브라우저 SQL fallback을 사용한다.
+- 의료·안전·실험 관련 내용은 실제 전문가의 판단과 안전 지침을 대체하지 않는다.

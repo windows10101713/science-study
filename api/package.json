@@ -1,0 +1,11 @@
+{
+  "name": "science-study-api",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/functions/*.js",
+  "dependencies": {
+    "@azure/cosmos": "^4.3.0",
+    "@azure/functions": "^4.6.0"
+  }
+}

@@ -302,7 +302,38 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* 4. 데이터 현황 및 내보내기/가져오기 */}
+        {/* 4. AI 생성 설정 */}
+        <div className="card">
+          <h3>🤖 AI 개인화 생성 설정</h3>
+          <p style={{ marginTop: '0.25rem' }}>AI는 진단 결과를 바탕으로 문제와 책을 만들며, 생성 결과는 수정하지 않고 artifact 버전으로 보존합니다.</p>
+          <div className="form-group" style={{ marginTop: '1rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+              <span>AI 개인 학습실 사용</span>
+              <input type="checkbox" checked={userPreferences.aiEnabled !== false} onChange={(e) => setUserPreference('aiEnabled', e.target.checked)} style={{ width: 'auto' }} />
+            </label>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label>AI 문제 수</label>
+              <select value={userPreferences.aiQuestionCount || 6} onChange={(e) => setUserPreference('aiQuestionCount', Number(e.target.value))}>
+                <option value={4}>4문제</option><option value={6}>6문제</option><option value={10}>10문제</option><option value={15}>15문제</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>AI 책 페이지 수</label>
+              <select value={userPreferences.aiBookPages || 8} onChange={(e) => setUserPreference('aiBookPages', Number(e.target.value))}>
+                <option value={5}>5페이지</option><option value={8}>8페이지</option><option value={12}>12페이지</option><option value={20}>20페이지</option>
+              </select>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gap: '0.6rem' }}>
+            <label style={{ display: 'flex', justifyContent: 'space-between' }}><span>수식 포함</span><input type="checkbox" checked={userPreferences.aiIncludeFormulas !== false} onChange={(e) => setUserPreference('aiIncludeFormulas', e.target.checked)} style={{ width: 'auto' }} /></label>
+            <label style={{ display: 'flex', justifyContent: 'space-between' }}><span>프로그래밍 코드 포함</span><input type="checkbox" checked={userPreferences.aiIncludeCode !== false} onChange={(e) => setUserPreference('aiIncludeCode', e.target.checked)} style={{ width: 'auto' }} /></label>
+            <label style={{ display: 'flex', justifyContent: 'space-between' }}><span>참고 링크 포함</span><input type="checkbox" checked={userPreferences.aiIncludeLinks !== false} onChange={(e) => setUserPreference('aiIncludeLinks', e.target.checked)} style={{ width: 'auto' }} /></label>
+          </div>
+        </div>
+
+        {/* 5. 데이터 현황 및 내보내기/가져오기 */}
         <div className="card">
           <h3>💾 학습 데이터 현황 및 백업</h3>
 

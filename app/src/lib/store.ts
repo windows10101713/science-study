@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { saveLearningRecord } from './db'
+import { pushLearningRecord } from './remote'
 
 export interface StudentProgress {
   conceptId: string
@@ -61,6 +62,12 @@ export interface UserPreferences {
   soundEffects: boolean
   preferredSubject: string
   preferredLevelCategory: string
+  aiEnabled: boolean
+  aiQuestionCount: number
+  aiBookPages: number
+  aiIncludeFormulas: boolean
+  aiIncludeCode: boolean
+  aiIncludeLinks: boolean
 }
 
 interface LearningStore {
@@ -117,6 +124,12 @@ export const useLearningStore = create<LearningStore>()(
         soundEffects: true,
         preferredSubject: 'physics',
         preferredLevelCategory: 'middle',
+        aiEnabled: true,
+        aiQuestionCount: 6,
+        aiBookPages: 8,
+        aiIncludeFormulas: true,
+        aiIncludeCode: true,
+        aiIncludeLinks: true,
       },
 
       addProgress: (p) =>
@@ -127,6 +140,7 @@ export const useLearningStore = create<LearningStore>()(
       updateProgress: (conceptId, score, timeSpent) =>
         set((state) => {
           saveLearningRecord({ id: `progress-${conceptId}`, type: 'progress', conceptId, score, timeSpent })
+          void pushLearningRecord({ id: `progress-${conceptId}`, type: 'progress', conceptId, score, timeSpent })
           const existing = state.progress.find((p) => p.conceptId === conceptId)
           if (existing) {
             return {
@@ -160,6 +174,7 @@ export const useLearningStore = create<LearningStore>()(
         }
         set((state) => ({ sessions: [...state.sessions, session] }))
         saveLearningRecord({ id: session.id, type: 'session-start', conceptId, startTime: session.startTime })
+        void pushLearningRecord({ id: session.id, type: 'session-start', conceptId, startTime: session.startTime })
         return session
       },
 
@@ -167,6 +182,7 @@ export const useLearningStore = create<LearningStore>()(
         set((state) => {
           const endedAt = new Date().toISOString()
           saveLearningRecord({ id: sessionId, type: 'session-end', answers, score, endTime: endedAt })
+          void pushLearningRecord({ id: sessionId, type: 'session-end', answers, score, endTime: endedAt })
           return {
             sessions: state.sessions.map((s) =>
               s.id === sessionId ? { ...s, endTime: endedAt, answers, score } : s
@@ -177,6 +193,7 @@ export const useLearningStore = create<LearningStore>()(
       addMistake: (mistake) =>
         set((state) => {
           saveLearningRecord({ ...mistake, type: 'mistake' })
+          void pushLearningRecord({ ...mistake, type: 'mistake' })
           return { mistakes: [...state.mistakes, mistake] }
         }),
 

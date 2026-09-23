@@ -16,6 +16,7 @@ import ReviewPage from './pages/ReviewPage'
 import DashboardPage from './pages/DashboardPage'
 import DetailedReviewPage from './pages/DetailedReviewPage'
 import SettingsPage from './pages/SettingsPage'
+import AIStudyPage from './pages/AIStudyPage'
 import RequireAuth from './components/RequireAuth'
 import Layout from './components/Layout'
 import { useLearningStore } from './lib/store'
@@ -54,6 +55,7 @@ function App() {
               <Route path="/log/detailed" element={<DetailedReviewPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/ai-study" element={<AIStudyPage />} />
             </Route>
           </Route>
         </Routes>

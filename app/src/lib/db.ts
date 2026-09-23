@@ -266,9 +266,9 @@ export function upsertSqlUser(username: string, passwordHash: string) {
 }
 
 export function findSqlUser(username: string): { username: string; password_hash: string } | undefined {
-  return executeQuery<{ username: string; password_hash: string }>(
-    `SELECT username, password_hash FROM auth_users WHERE username = '${username.replace(/'/g, "''")}' LIMIT 1`
-  ).rows[0]
+  const normalized = username.trim().toLowerCase()
+  const users = db.getAllTables().auth_users || []
+  return users.find((user) => String(user.username).trim().toLowerCase() === normalized)
 }
 
 export function saveLearningRecord(record: Record<string, unknown>) {
