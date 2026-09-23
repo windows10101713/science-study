@@ -4,6 +4,7 @@ import { allLessons } from '../data/lessons'
 import { getCustomConcept } from '../lib/concepts'
 import { searchTerms, ScienceTerm } from '../data/terms'
 import { generateAIArtifact } from '../lib/remote'
+import { LIBRARY_BOOKS } from '../data/library'
 
 export default function ConceptPage() {
   const { lessonId } = useParams()
@@ -16,6 +17,12 @@ export default function ConceptPage() {
   const level = userPref.level || 'curriculum'
   const customConcept = lessonId ? getCustomConcept(lessonId) : undefined
   const builtInLesson = !customConcept ? allLessons.find((l) => l.id === lessonId) : undefined
+  const lessonSubject = builtInLesson?.subject || customConcept?.subject || userPref.preferredSubject || 'general'
+  const relatedBooks = LIBRARY_BOOKS.filter((book) => book.subject === lessonSubject).slice(0, 4).map((book) => ({
+    title: book.title,
+    description: book.description,
+    chapters: book.chapters.slice(0, 3).map((chapter) => chapter.title),
+  }))
   const [aiLesson, setAiLesson] = useState<any>(null)
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState('')
@@ -28,6 +35,7 @@ export default function ConceptPage() {
       topic: decodeURIComponent(lessonId),
       subject: userPref.preferredSubject || 'general',
       level,
+      relatedBooks,
     }).then((result) => {
       if (cancelled) return
       if (result.ok && result.data?.artifact?.content) setAiLesson(result.data.artifact.content)
@@ -97,6 +105,27 @@ export default function ConceptPage() {
             수준: <strong>{level === 'basic' ? '🌱 기초' : level === 'curriculum' ? '📚 교육과정' : '🎓 대학'}</strong>
           </p>
         </div>
+
+        <div className="card" style={{ background: '#f8fafc', borderLeft: '4px solid #4338ca' }}>
+          <h3>📖 이 레슨의 도서관 연결</h3>
+          <p style={{ marginBottom: '0.75rem' }}>이 주제를 더 깊이 공부할 수 있는 관련 도서와 챕터입니다.</p>
+          {(lessonData.sources || relatedBooks).map((source: any, index: number) => (
+            <div key={source.title || index} style={{ padding: '0.7rem 0', borderTop: index ? '1px solid #e2e8f0' : undefined }}>
+              <strong>{source.title}</strong>
+              <p style={{ fontSize: '0.85rem', marginTop: '0.2rem' }}>{source.summary || source.description}</p>
+              {source.chapters && <small style={{ color: '#6366f1' }}>{source.chapters.join(' · ')}</small>}
+            </div>
+          ))}
+        </div>
+
+        {(lessonData.formulas || lessonData.code || lessonData.domainModule) && (
+          <div className="card" style={{ background: '#fff7ed' }}>
+            <h3>🧪 분야별 탐구 모형</h3>
+            {lessonData.formulas?.map((formula: string) => <code key={formula} style={{ display: 'block', marginTop: '0.5rem' }}>{formula}</code>)}
+            {lessonData.code && <pre style={{ marginTop: '0.75rem', overflowX: 'auto', padding: '0.75rem', background: '#1e293b', color: 'white', borderRadius: '0.4rem' }}>{lessonData.code}</pre>}
+            {lessonData.domainModule && <div style={{ marginTop: '0.75rem' }}><strong>{lessonData.domainModule.title}</strong><p style={{ marginTop: '0.35rem' }}>{lessonData.domainModule.expectedObservation}</p><ul style={{ marginTop: '0.5rem', paddingLeft: '1.25rem' }}>{lessonData.domainModule.steps?.map((step: string) => <li key={step}>{step}</li>)}</ul></div>}
+          </div>
+        )}
 
         {lessonData.deepDive && lessonData.deepDive.length > 0 && (
           <div className="card" style={{ backgroundColor: '#f5f3ff' }}>

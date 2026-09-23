@@ -46,6 +46,23 @@ function artifactId(kind, input) {
   return `ai:${kind}:${createHash('sha256').update(JSON.stringify(input)).digest('hex')}`
 }
 
+function subjectTeachingSpec(subject) {
+  const specs = {
+    physics: 'Require dimensional analysis, variable definitions, derivation, units, and at least one numerical worked example.',
+    math: 'Require definitions, assumptions, symbolic derivation, a worked example, and a counterexample or boundary case.',
+    chemistry: 'Require particle-level mechanism, reaction or equilibrium model, balanced equation when relevant, quantities and lab safety.',
+    engineering: 'Require a system model, block diagram description, constraints, trade-offs, failure modes, and verification criteria.',
+    medicine: 'Require physiology or mechanism, evidence limits, sensitivity/specificity or risk where relevant, and a clear non-diagnostic safety disclaimer.',
+    astronomy: 'Require an observation or simulation model, measurable parameters, units, uncertainty, and how telescope data supports the claim.',
+    computer: 'Require architecture, algorithm or data-flow model, complexity, failure cases, and a small reproducible example.',
+    networking: 'Require packet flow, protocol layers, addresses, configuration variables, security risks, and a troubleshooting simulation.',
+    electronics: 'Require circuit or signal model, component roles, equations, expected waveforms, measurement procedure, and safety notes.',
+    programming: 'Require runnable code, language version, input/output example, tests, complexity, and common bugs.',
+    datascience: 'Require a concrete dataset schema, cleaning steps, model choice, train/validation/test split, metrics, bias, and interpretation.',
+  }
+  return specs[subject] || 'Require concrete definitions, a model, an example, a practice task, and explicit limitations.'
+}
+
 async function readArtifact(id, userId) {
   try {
     return (await (await getContainer()).item(id, userId).read()).resource
@@ -205,13 +222,13 @@ async function handle(request) {
   }
 
   if (method === 'POST' && route.join('/') === 'ai/quiz') {
-    const input = { topic: data.topic, subject: data.subject, level: data.level, profileArtifactId: data.profileArtifactId, count: Math.min(Number(data.count) || 6, 20), generationVersion: 1 }
+    const input = { topic: data.topic, subject: data.subject, level: data.level, profileArtifactId: data.profileArtifactId, relatedBooks: data.relatedBooks || [], count: Math.min(Number(data.count) || 6, 20), generationVersion: 2 }
     const result = await createImmutableArtifact(
       user,
       'quiz',
       input,
-      'You create rigorous Korean science quizzes. Return JSON only: {title, questions}. Each question has id, type, question, options, answer, explanation, hint, difficulty. Include multiple_choice, short_answer, and calculation when appropriate. Do not include unsafe experiments or unsupported facts.',
-      `Create ${input.count} immutable questions for ${input.subject}/${input.topic} at ${input.level} level. Learner profile artifact: ${input.profileArtifactId || 'none'}.`,
+      `You create rigorous Korean science quizzes. ${subjectTeachingSpec(input.subject)} Return JSON only: {title, questions}. Each question has id, type, question, options, answer, explanation, hint, difficulty. Include multiple_choice, short_answer, and calculation when appropriate. Do not include unsafe experiments or unsupported facts. Use the supplied library sources as context and do not claim unsupported citations.`,
+      `Create ${input.count} immutable questions for ${input.subject}/${input.topic} at ${input.level} level. Learner profile artifact: ${input.profileArtifactId || 'none'}. Library sources: ${JSON.stringify(input.relatedBooks)}.`,
     )
     return json(200, result)
   }
@@ -223,26 +240,27 @@ async function handle(request) {
       subject: data.subject || 'general',
       level: data.level || 'curriculum',
       language: 'ko',
-      generationVersion: 1,
+      relatedBooks: data.relatedBooks || [],
+      generationVersion: 2,
     }
     const result = await createImmutableArtifact(
       user,
       'lesson',
       input,
-      'You create accurate Korean science lessons. Return JSON only with id, subject, grade, level, unit, title, summary, keywords, misconceptions, explanation {basic,curriculum,university}, deepDive, examples, observationActivity {title,description,prediction,materials,steps,safetyWarning}, and questions. Do not invent citations, unsafe experiments, or medical advice. Make the lesson teachable and concrete.',
-      `Create one complete lesson for topic "${input.topic}" in subject "${input.subject}" at level "${input.level}". Include definitions, an intuitive explanation, a formula or worked example when relevant, common misconceptions, a safe observation activity, and six question IDs named from ${input.lessonId}-q01 through ${input.lessonId}-q06.`,
+      `You create accurate Korean science lessons. ${subjectTeachingSpec(input.subject)} Return JSON only with id, subject, grade, level, unit, title, summary, keywords, misconceptions, explanation {basic,curriculum,university}, deepDive, examples, domainModule {type,title,steps,parameters,expectedObservation}, formulas, code, sources [{title,summary}], observationActivity {title,description,prediction,materials,steps,safetyWarning}, and questions. Do not invent citations, unsafe experiments, or medical advice. Make the lesson teachable and concrete.`,
+      `Create one complete lesson for topic "${input.topic}" in subject "${input.subject}" at level "${input.level}". Use these library sources and summarize them on the lesson's first page: ${JSON.stringify(input.relatedBooks)}. Include definitions, an intuitive explanation, a formula or worked example when relevant, common misconceptions, a safe observation activity, and six question IDs named from ${input.lessonId}-q01 through ${input.lessonId}-q06.`,
     )
     return json(200, result)
   }
 
   if (method === 'POST' && route.join('/') === 'ai/book') {
-    const input = { title: data.title, subject: data.subject, audience: data.audience, pages: Math.min(Number(data.pages) || 8, 30), includeCode: Boolean(data.includeCode), includeFormulas: data.includeFormulas !== false, includeLinks: data.includeLinks !== false, generationVersion: 1 }
+    const input = { title: data.title, subject: data.subject, audience: data.audience, relatedBooks: data.relatedBooks || [], pages: Math.min(Number(data.pages) || 8, 30), includeCode: Boolean(data.includeCode), includeFormulas: data.includeFormulas !== false, includeLinks: data.includeLinks !== false, generationVersion: 2 }
     const result = await createImmutableArtifact(
       user,
       'book',
       input,
-      'You write accurate Korean educational science books. Return JSON only: {title, subtitle, audience, pages}. Each page has pageNumber, heading, paragraphs, terms, formulas, code, links, exercises. Use code only for programming topics. Links must be official or clearly marked search suggestions; never fabricate citations.',
-      `Write a structured educational book titled ${input.title} about ${input.subject} for ${input.audience}. Produce ${input.pages} pages. Formulas: ${input.includeFormulas}. Code: ${input.includeCode}. Links: ${input.includeLinks}.`,
+      `You write accurate Korean educational science books. ${subjectTeachingSpec(input.subject)} Return JSON only: {title, subtitle, audience, pages, sourceSummary}. Each page has pageNumber, heading, paragraphs, terms, formulas, code, simulation, links, exercises. Use code only for programming topics. Links must be official or clearly marked search suggestions; never fabricate citations.`,
+      `Write a structured educational book titled ${input.title} about ${input.subject} for ${input.audience}. Produce ${input.pages} pages and summarize the supplied library sources in the opening page. Sources: ${JSON.stringify(input.relatedBooks)}. Formulas: ${input.includeFormulas}. Code: ${input.includeCode}. Links: ${input.includeLinks}.`,
     )
     return json(200, result)
   }

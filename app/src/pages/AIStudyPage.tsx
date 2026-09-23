@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { remoteRequest } from '../lib/remote'
 import { useLearningStore } from '../lib/store'
 import { SUBJECTS, LEVELS } from '../data/subjects'
+import { LIBRARY_BOOKS } from '../data/library'
 import '../styles/index.css'
 
 interface ArtifactResponse { artifact?: { id: string; content: any; createdAt: string }; reused?: boolean; error?: string }
@@ -18,14 +19,15 @@ export default function AIStudyPage() {
   const [book, setBook] = useState<any>(null)
   const [busy, setBusy] = useState<'assessment' | 'quiz' | 'book' | null>(null)
   const [error, setError] = useState('')
+  const relatedBooks = LIBRARY_BOOKS.filter((book) => book.subject === subject).slice(0, 5).map((book) => ({ title: book.title, description: book.description, chapters: book.chapters.slice(0, 3).map((chapter) => chapter.title) }))
 
   const callAI = async (kind: 'assessment' | 'quiz' | 'book') => {
     setBusy(kind); setError('')
     const payload = kind === 'assessment'
       ? { survey, answers }
       : kind === 'quiz'
-        ? { topic, subject, level, count: userPreferences.aiQuestionCount || 6, profileArtifactId: assessment?.id }
-        : { title: `${topic} 완전 정복`, subject, audience: level, pages: userPreferences.aiBookPages || 8, includeCode: userPreferences.aiIncludeCode, includeFormulas: userPreferences.aiIncludeFormulas, includeLinks: userPreferences.aiIncludeLinks }
+        ? { topic, subject, level, count: userPreferences.aiQuestionCount || 6, profileArtifactId: assessment?.id, relatedBooks }
+        : { title: `${topic} 완전 정복`, subject, audience: level, pages: userPreferences.aiBookPages || 8, includeCode: userPreferences.aiIncludeCode, includeFormulas: userPreferences.aiIncludeFormulas, includeLinks: userPreferences.aiIncludeLinks, relatedBooks }
     const result = await remoteRequest<ArtifactResponse>(`/ai/${kind}`, { method: 'POST', body: JSON.stringify(payload) })
     setBusy(null)
     if (!result.ok || !result.data) {
