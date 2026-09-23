@@ -472,6 +472,48 @@ body {
   min-width: 0;
 }
 
+.ai-quick-bar {
+  min-height: 3.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.45rem 1.25rem;
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.ai-quick-label {
+  margin-right: auto;
+  color: #4338ca;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.ai-quick-button {
+  border: 1px solid #c7d2fe;
+  border-radius: 0.45rem;
+  padding: 0.45rem 0.75rem;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ai-quick-button:hover {
+  background: #e0e7ff;
+}
+
+.ai-quick-book {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #c2410c;
+}
+
 .sidebar {
   width: 220px;
   flex-shrink: 0;
@@ -557,6 +599,19 @@ body {
 
   .sidebar-user {
     display: none;
+  }
+
+  .ai-quick-bar {
+    padding: 0.4rem 0.75rem;
+  }
+
+  .ai-quick-label {
+    font-size: 0.72rem;
+  }
+
+  .ai-quick-button {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.72rem;
   }
 }
 
