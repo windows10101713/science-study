@@ -35,3 +35,10 @@ export async function pushLocalDatabase(records: Record<string, unknown>[]) {
 export async function pushLearningRecord(record: Record<string, unknown>) {
   return pushLocalDatabase([record])
 }
+
+export async function generateAIArtifact<T = any>(kind: string, payload: Record<string, unknown>) {
+  return remoteRequest<{ artifact?: { id: string; content: T; createdAt: string }; reused?: boolean; error?: string }>(`/ai/${kind}`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}

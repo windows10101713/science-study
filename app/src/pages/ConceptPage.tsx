@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { allLessons } from '../data/lessons'
 import { getCustomConcept } from '../lib/concepts'
 import { searchTerms, ScienceTerm } from '../data/terms'
+import { generateAIArtifact } from '../lib/remote'
 
 export default function ConceptPage() {
   const { lessonId } = useParams()
@@ -15,7 +16,27 @@ export default function ConceptPage() {
   const level = userPref.level || 'curriculum'
   const customConcept = lessonId ? getCustomConcept(lessonId) : undefined
   const builtInLesson = !customConcept ? allLessons.find((l) => l.id === lessonId) : undefined
-  const lessonData = customConcept
+  const [aiLesson, setAiLesson] = useState<any>(null)
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiError, setAiError] = useState('')
+  useEffect(() => {
+    if (customConcept || builtInLesson || !lessonId) return
+    let cancelled = false
+    setAiLoading(true)
+    generateAIArtifact('lesson', {
+      lessonId,
+      topic: decodeURIComponent(lessonId),
+      subject: userPref.preferredSubject || 'general',
+      level,
+    }).then((result) => {
+      if (cancelled) return
+      if (result.ok && result.data?.artifact?.content) setAiLesson(result.data.artifact.content)
+      else setAiError(result.data?.error || 'AI 레슨을 만들 수 없습니다. Azure AI 설정을 확인하세요.')
+      setAiLoading(false)
+    })
+    return () => { cancelled = true }
+  }, [builtInLesson, customConcept, lessonId, level, userPref.preferredSubject])
+  const lessonData: any = customConcept
     ? {
         ...customConcept,
         unit: '나의 개념',
@@ -34,17 +55,18 @@ export default function ConceptPage() {
           safetyWarning: '주변을 관찰할 때 이동 안전과 주변 사람을 주의하세요.',
         },
       }
-    : builtInLesson
+    : builtInLesson || aiLesson
 
   if (!lessonData) {
     return (
       <div className="app">
         <header className="header">
           <div className="container">
-            <h1>레슨을 찾을 수 없습니다</h1>
+            <h1>{aiLoading ? '🤖 AI 레슨 작성 중...' : '레슨을 찾을 수 없습니다'}</h1>
           </div>
         </header>
         <main className="container">
+          <p>{aiLoading ? '주제에 맞는 설명·예제·오개념·문제·관찰 활동을 구성하고 있습니다.' : aiError || '홈으로 돌아가거나 다른 레슨을 선택하세요.'}</p>
           <button className="btn btn-primary" onClick={() => navigate('/')}>홈으로</button>
         </main>
       </div>
@@ -80,7 +102,7 @@ export default function ConceptPage() {
           <div className="card" style={{ backgroundColor: '#f5f3ff' }}>
             <h3>🔬 심화 이론</h3>
             <div style={{ display: 'grid', gap: '0.75rem' }}>
-              {lessonData.deepDive.map((paragraph, idx) => (
+              {lessonData.deepDive.map((paragraph: string, idx: number) => (
                 <p key={idx} style={{ lineHeight: '1.8' }}>{paragraph}</p>
               ))}
             </div>
@@ -93,7 +115,7 @@ export default function ConceptPage() {
             궁금한 키워드를 클릭하여 용어 사전의 구체적인 해설을 확인하세요.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
-            {lessonData.keywords.map((keyword, idx) => {
+            {lessonData.keywords.map((keyword: string, idx: number) => {
               const matched = searchTerms(keyword, lessonData.subject)[0] || searchTerms(keyword, 'all')[0]
               return (
                 <div
@@ -123,7 +145,7 @@ export default function ConceptPage() {
         <div className="card">
           <h3>🔍 자주 하는 오해</h3>
           <ul style={{ marginLeft: '1.5rem', lineHeight: '1.8' }}>
-            {lessonData.misconceptions.map((misconception, idx) => (
+            {lessonData.misconceptions.map((misconception: string, idx: number) => (
               <li key={idx} style={{ color: '#c41e3a', marginBottom: '0.5rem' }}>
                 ❌ {misconception}
               </li>
@@ -141,14 +163,14 @@ export default function ConceptPage() {
 
           <h4 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>🛠️ 준비물</h4>
           <ul style={{ marginLeft: '1.5rem' }}>
-            {observationActivity.materials.map((material, idx) => (
+            {observationActivity.materials.map((material: string, idx: number) => (
               <li key={idx}>{material}</li>
             ))}
           </ul>
 
           <h4 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>📋 단계</h4>
           <ol style={{ marginLeft: '1.5rem' }}>
-            {observationActivity.steps.map((step, idx) => (
+            {observationActivity.steps.map((step: string, idx: number) => (
               <li key={idx} style={{ marginBottom: '0.5rem' }}>{step}</li>
             ))}
           </ol>

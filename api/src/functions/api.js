@@ -215,6 +215,25 @@ async function handle(request) {
     return json(200, result)
   }
 
+  if (method === 'POST' && route.join('/') === 'ai/lesson') {
+    const input = {
+      lessonId: data.lessonId,
+      topic: data.topic || data.lessonId,
+      subject: data.subject || 'general',
+      level: data.level || 'curriculum',
+      language: 'ko',
+      generationVersion: 1,
+    }
+    const result = await createImmutableArtifact(
+      user,
+      'lesson',
+      input,
+      'You create accurate Korean science lessons. Return JSON only with id, subject, grade, level, unit, title, summary, keywords, misconceptions, explanation {basic,curriculum,university}, deepDive, examples, observationActivity {title,description,prediction,materials,steps,safetyWarning}, and questions. Do not invent citations, unsafe experiments, or medical advice. Make the lesson teachable and concrete.',
+      `Create one complete lesson for topic "${input.topic}" in subject "${input.subject}" at level "${input.level}". Include definitions, an intuitive explanation, a formula or worked example when relevant, common misconceptions, a safe observation activity, and six question IDs named from ${input.lessonId}-q01 through ${input.lessonId}-q06.`,
+    )
+    return json(200, result)
+  }
+
   if (method === 'POST' && route.join('/') === 'ai/book') {
     const input = { title: data.title, subject: data.subject, audience: data.audience, pages: Math.min(Number(data.pages) || 8, 30), includeCode: Boolean(data.includeCode), includeFormulas: data.includeFormulas !== false, includeLinks: data.includeLinks !== false, generationVersion: 1 }
     const result = await createImmutableArtifact(
