@@ -1,7 +1,6 @@
 // 브라우저 SQL DB를 주 저장소로 사용하고 localStorage는 현재 세션 표시만 보관합니다.
-import { findSqlUser, upsertSqlUser, executeQuery } from './db'
-import { db } from './db'
-import { pushLocalDatabase, remoteRequest, storeRemoteSession } from './remote'
+import { findSqlUser, upsertSqlUser, executeQuery, db, importLearningRecord } from './db'
+import { pullRemoteDatabase, pushLocalDatabase, remoteRequest, storeRemoteSession } from './remote'
 interface StoredUser {
   username: string
   passwordHash: string
@@ -46,6 +45,12 @@ async function migrateBrowserDatabase() {
   await pushLocalDatabase(records)
 }
 
+async function syncWithServer() {
+  const result = await pullRemoteDatabase()
+  if (!result.ok || !result.data?.records) return
+  result.data.records.forEach((record) => importLearningRecord(record.recordType, record.payload || record))
+}
+
 export async function signUp(username: string, password: string): Promise<{ ok: boolean; error?: string }> {
   const trimmed = normalizeUsername(username)
   if (!trimmed || !password) {
@@ -66,6 +71,7 @@ export async function signUp(username: string, password: string): Promise<{ ok: 
   if (remote.ok && remote.data) {
     storeRemoteSession(remote.data)
     await migrateBrowserDatabase()
+    await syncWithServer()
   } else if (!remote.unavailable && remote.status === 409) {
     return { ok: false, error: remote.data?.error || '이미 존재하는 아이디입니다' }
   }
@@ -88,6 +94,7 @@ export async function login(username: string, password: string): Promise<{ ok: b
   })
   if (remote.ok && remote.data) {
     storeRemoteSession(remote.data)
+    await syncWithServer()
     return { ok: true }
   }
   if (!remote.unavailable && remote.status !== 404) {
@@ -105,6 +112,7 @@ export async function login(username: string, password: string): Promise<{ ok: b
       if (migrated.ok && migrated.data) {
         storeRemoteSession(migrated.data)
         await migrateBrowserDatabase()
+        await syncWithServer()
         return { ok: true }
       }
     }

@@ -280,3 +280,31 @@ export function saveLearningRecord(record: Record<string, unknown>) {
     new Date().toISOString(),
   ])
 }
+
+export function importLearningRecord(type: string, record: Record<string, any>) {
+  const payload = record.payload && typeof record.payload === 'object' ? record.payload : record
+  const tableByType: Record<string, string> = {
+    progress: 'progress',
+    mistake: 'mistakes',
+    session: 'sessions',
+    'session-start': 'sessions',
+    'session-end': 'sessions',
+    classes: 'classes',
+    terms: 'terms',
+  }
+  const table = tableByType[type]
+  if (!table || !payload) return
+  const row = { ...payload, id: payload.id || record.sourceId || record.id }
+  const existing = db.getAllTables()[table]?.find((item) => item.id === row.id)
+  if (!existing) {
+    executeQuery(`INSERT INTO ${table} (id, payload, imported_at) VALUES (?, ?, ?)`, [row.id, JSON.stringify(row), new Date().toISOString()])
+    const tables = db.getAllTables()
+    const inserted = tables[table][tables[table].length - 1]
+    Object.keys(inserted).forEach((key) => {
+      if (key === 'payload') {
+        Object.assign(inserted, row)
+        delete inserted.payload
+      }
+    })
+  }
+}

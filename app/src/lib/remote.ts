@@ -36,6 +36,12 @@ export async function pushLearningRecord(record: Record<string, unknown>) {
   return pushLocalDatabase([record])
 }
 
+export async function pullRemoteDatabase() {
+  const result = await remoteRequest<{ records?: Array<{ recordType: string; payload: Record<string, any>; sourceId: string }> }>('/sync/export')
+  if (!result.ok || !result.data?.records) return result
+  return result
+}
+
 export async function generateAIArtifact<T = any>(kind: string, payload: Record<string, unknown>) {
   return remoteRequest<{ artifact?: { id: string; content: T; createdAt: string }; reused?: boolean; error?: string }>(`/ai/${kind}`, {
     method: 'POST',

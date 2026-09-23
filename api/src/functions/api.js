@@ -132,8 +132,9 @@ async function authenticatedUser(request) {
 }
 
 async function saveUserRecord(user, type, sourceId, payload) {
-  const id = `${user.id}:${type}:${encodeURIComponent(String(sourceId))}`
-  await (await getContainer()).item(id, user.id).upsert({ id, pk: user.id, type: 'learning-record', recordType: type, sourceId: String(sourceId), userId: user.id, payload, updatedAt: new Date().toISOString() })
+  const safeSourceId = encodeURIComponent(String(sourceId)).replace(/%/g, '_')
+  const id = `${user.id.replace(/[^a-zA-Z0-9_-]/g, '_')}_${type.replace(/[^a-zA-Z0-9_-]/g, '_')}_${safeSourceId}`
+  await (await getContainer()).items.upsert({ id, pk: user.id, type: 'learning-record', recordType: type, sourceId: String(sourceId), userId: user.id, payload, updatedAt: new Date().toISOString() })
 }
 
 async function handle(request) {
