@@ -11,8 +11,8 @@ export default function Layout() {
       <div className="app-content">
         <div className="ai-quick-bar">
           <span className="ai-quick-label">🤖 AI 창작실</span>
-          <button className="ai-quick-button" onClick={() => navigate('/ai-study?mode=lesson')}>➕ AI 레슨 만들기</button>
-          <button className="ai-quick-button ai-quick-book" onClick={() => navigate('/ai-study?mode=book')}>📖 AI 책 만들기</button>
+          <button className="ai-quick-button" onClick={() => navigate('/ai-study?mode=lesson&autogenerate=1')}>➕ AI 레슨 만들기</button>
+          <button className="ai-quick-button ai-quick-book" onClick={() => navigate('/ai-study?mode=book&autogenerate=1')}>📖 AI 책 만들기</button>
         </div>
         <Outlet />
       </div>
