@@ -210,13 +210,13 @@ async function handle(request) {
   }
 
   if (method === 'POST' && route.join('/') === 'ai/assessment') {
-    const input = { survey: data.survey || {}, answers: data.answers || [], rubricVersion: 1 }
+    const input = { survey: data.survey || {}, answers: data.answers || [], language: 'ko', rubricVersion: 2 }
     const result = await createImmutableArtifact(
       user,
       'assessment',
       input,
-      'You are a careful science placement assessor. Return JSON only with level, confidence, strengths, gaps, recommendedSubjects, and explanation. Never invent a diagnosis. Use levels basic, curriculum, advanced, expert, research.',
-      `Assess this learner from the survey and diagnostic answers. Survey: ${JSON.stringify(input.survey)} Answers: ${JSON.stringify(input.answers)}`,
+      'You are a careful Korean science placement assessor. IMPORTANT: every human-readable value must be written in natural Korean Hangul. Never write English sentences. English is allowed only inside technical abbreviations such as pH, DNA, AI, or official level IDs. Return JSON only with level, confidence, strengths, gaps, recommendedSubjects, and explanation. Never invent a medical or psychological diagnosis. Use levels basic, curriculum, advanced, expert, research.',
+      `한국어로만 학습자 수준을 판정하세요. 설문: ${JSON.stringify(input.survey)} 진단 답변: ${JSON.stringify(input.answers)}. strengths, gaps, recommendedSubjects, explanation의 모든 문장은 반드시 한국어로 작성하세요.`,
     )
     return json(200, result)
   }

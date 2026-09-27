@@ -32,7 +32,7 @@ export default function AIStudyPage() {
   const callAI = async (kind: 'assessment' | 'lesson' | 'quiz' | 'book') => {
     setBusy(kind); setError('')
     const payload = kind === 'assessment'
-      ? { survey, answers }
+      ? { survey, answers, language: 'ko', rubricVersion: 2 }
       : kind === 'lesson'
         ? { lessonId: `ai-${subject}-${topic.replace(/[^가-힣a-zA-Z0-9]/g, '-').toLowerCase()}`, topic, subject, level, relatedBooks }
       : kind === 'quiz'
